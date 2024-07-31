@@ -8,29 +8,29 @@ We will start with Route 53 and Certificate Manager to handle domain control wit
 
 This is what our system architecture will look like:
 
-![system-architecture](./system-architecture.png)
+![system-architecture](./assets/system-architecture.png)
 
 ## Route 53
 
 Create a hosted zone for your apex domain and point your domain registrar's nameservers to Route 53.
 
-![route53](./route-53-name-servers.png)
+![route53](./assets/route-53-name-servers.png)
 
-![namecheap](./namecheap.png)
+![namecheap](./assets/namecheap.png)
 
 ## Certificate Manager
 
 Request a public certificate for your apex and wildcard subdomain with DNS validation and RSA 2048. Then click create records in Route 53 and acknowledge for the validation (click "create records" in subsequent window). Then view cert success and route 53 CNAME record.
 
-![certificate-manager](./certificate-manager.png)
+![certificate-manager](./assets/certificate-manager.png)
 
-![route53-validation](./route-53-validation.png)
+![route53-validation](./assets/route-53-validation.png)
 
-![create-records-acknowledgement](./create-records-acknowledgement.png)
+![create-records-acknowledgement](./assets/create-records-acknowledgement.png)
 
-![view-cert-success](./view-cert-success.png)
+![view-cert-success](./assets/view-cert-success.png)
 
-![route53-cname-record](./route-53-cname-record.png)
+![route53-cname-record](./assets/route-53-cname-record.png)
 
 :::tip{title="Milestone:"}
 
@@ -79,27 +79,27 @@ Keep all other default settings and customize the following parameters:
 
 :::
 
-![cloudfront-distribution](./cloudfront-distribution.png)
+![cloudfront-distribution](./assets/cloudfront-distribution.png)
 
-![oac](./oac.png)
+![oac](./assets/oac.png)
 
-![redirect-https](./redirect-https.png)
+![redirect-https](./assets/redirect-https.png)
 
-![cnames-and-cert](./cnames-and-cert.png)
+![cnames-and-cert](./assets/cnames-and-cert.png)
 
-![default-root-object](./default-root-object.png)
+![default-root-object](./assets/default-root-object.png)
 
 Once you create the distribution, follow the bucket policy update flow by copying the policy and navigating to the bucket to update it.
 
-![bucket-policy-flow](./bucket-policy-flow.png)
+![bucket-policy-flow](./assets/bucket-policy-flow.png)
 
 On the permissions tab of the bucket, edit the policy and paste from your clipboard.
 
-![bucket-policy](./bucket-policy.png)
+![bucket-policy](./assets/bucket-policy.png)
 
 Now follow your distribution's domain to your protected website (only this cloudfront can access it with its signed aka authenticated headers).
 
-![cloudfront-s3-website](./cloudfront-s3-website.png)
+![cloudfront-s3-website](./assets/cloudfront-s3-website.png)
 
 :::tip{title="Milestone:"}
 
@@ -111,7 +111,7 @@ All set. let's point the DNS A record to this distribution and get a domain name
 
 In Route 53, create a simple A (ip address) record to point your apex domain to your cloudfront distribution.
 
-![a-record](./a-record.png)
+![a-record](./assets/a-record.png)
 
 :::danger{title="t-shoot"}
 
@@ -121,7 +121,7 @@ This will point your domain name to the ip address of the cloudfront distributio
 
 Define another A record to redirect to the apex domain's record.
 
-![redirect-a-record](./redirect-a-record.png)
+![redirect-a-record](./assets/redirect-a-record.png)
 
 :::warning
 
@@ -133,11 +133,11 @@ Typically the redirect is done with a CNAME record, but Route 53 is handling it 
 
 Validate programmatically and t-shoot the result with dig. Let's make sure our apex and subdomain point to the distribution's ip address.
 
-![dig-distro](./dig-distro.png)
+![dig-distro](./assets/dig-distro.png)
 
-![dig-apex](./dig-apex.png)
+![dig-apex](./assets/dig-apex.png)
 
-![dig-www](./dig-www.png)
+![dig-www](./assets/dig-www.png)
 
 :::tip{title="Milestone:"}
 
