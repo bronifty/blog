@@ -1,1 +1,188 @@
 # Function Details
+
+[github repo](https://github.com/bronifty/rspress-blog/tree/main/blog-app-examples/remix-lambda)
+
+## Remix Server Function
+
+```sh
+npx create-remix@latest
+```
+
+```js
+// lambda.js
+import { createRequestHandler } from "@remix-run/express";
+import serverless from "serverless-http";
+import express from "express";
+import * as build from "./build/server/index.js";
+
+const app = express();
+
+// Serve static files from the client build directory
+app.use(express.static("build/client"));
+
+// Handle all routes with the Remix request handler
+app.all("*", createRequestHandler({ build }));
+
+// export { app as handler };
+
+// // Create a serverless handler
+const serverlessHandler = serverless(app);
+
+// Export the handler function for Lambda
+const handler = async (event, context) => {
+  // Cloudfront sends requests with lowercase headers
+  // This normalizes the headers to work with Express
+  const normalizedEvent = {
+    ...event,
+    headers: Object.fromEntries(
+      Object.entries(event.headers).map(([key, value]) => [
+        key.toLowerCase(),
+        value,
+      ])
+    ),
+  };
+
+  const result = await serverlessHandler(normalizedEvent, context);
+
+  // Ensure the response has the correct content-type for HTML
+  if (!result.headers["content-type"]) {
+    result.headers["content-type"] = "text/html; charset=utf-8";
+  }
+
+  return result;
+};
+
+export { app, handler };
+```
+
+```js
+// esbuild.mjs
+import * as esbuild from "esbuild";
+
+await esbuild.build({
+  entryPoints: ["lambda.js"],
+  bundle: true,
+  platform: "node",
+  target: "node20",
+  format: "cjs", // Change format to CommonJS
+  outfile: "lambda.cjs", // Change output file extension to .cjs
+  external: ["node:fs", "node:path", "node:crypto"],
+});
+
+console.log("Build complete");
+```
+
+## Local Test Harness (Validate App Router and Handler)
+
+```js
+//local.js
+import { handler, app } from "../lambda.cjs"; // the lambda function built by esbuild from the above lambda.js file
+import { normalizeRequest } from "../utils/normalize-request.js";
+import fs from "fs/promises";
+import path from "path";
+
+async function readJsonFile(filename) {
+  const filePath = path.join(process.cwd(), "events", filename);
+  const data = await fs.readFile(filePath, "utf8");
+  return JSON.parse(data);
+}
+
+const apigRequest = await readJsonFile("apig.json");
+const cloudfrontRequest = await readJsonFile("cloudfront.json");
+
+async function main(event) {
+  const normalizedRequest = normalizeRequest(event);
+  const result = await handler(normalizedRequest);
+  console.log(result);
+}
+
+main(cloudfrontRequest);
+
+app.listen(3000, () => {
+  console.log("Server is running on port 3000");
+});
+```
+
+```js
+// normalize-request.js
+function normalizeRequest(event) {
+  let headers = {};
+  let method = "";
+  let uri = "";
+  let clientIp = "";
+
+  if (event.Records) {
+    // CloudFront request
+    const cfRequest = event.Records[0].cf.request;
+    headers = cfRequest.headers;
+    method = cfRequest.method;
+    uri = cfRequest.uri;
+    clientIp = cfRequest.clientIp;
+  } else {
+    // API Gateway request
+    headers = event.headers;
+    method = event.httpMethod;
+    uri = event.path;
+    clientIp = event.requestContext.identity.sourceIp;
+  }
+
+  // Normalize headers to a single object
+  const normalizedHeaders = {};
+  for (const [key, value] of Object.entries(headers)) {
+    if (Array.isArray(value)) {
+      normalizedHeaders[key.toLowerCase()] = value[0].value || value[0];
+    } else {
+      normalizedHeaders[key.toLowerCase()] = value;
+    }
+  }
+
+  return {
+    headers: normalizedHeaders,
+    method,
+    uri,
+    clientIp,
+  };
+}
+
+export { normalizeRequest };
+```
+
+```json
+// apig.json
+{
+  "Records": [
+    {
+      "cf": {
+        "config": {
+          "distributionId": "EXAMPLE"
+        },
+        "request": {
+          "uri": "/",
+          "method": "GET",
+          "clientIp": "2001:cdba::3257:9652",
+          "headers": {
+            "host": [
+              {
+                "key": "Host",
+                "value": "d123.cf.net"
+              }
+            ],
+            "user-agent": [
+              {
+                "key": "User-Agent",
+                "value": "Test Agent"
+              }
+            ],
+            "user-name": [
+              {
+                "key": "User-Name",
+                "value": "aws-cloudfront"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}
+```
