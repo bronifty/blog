@@ -8,5 +8,10 @@
     "type": "dir",
     "name": "official-plugins",
     "label": "Plugin List"
+  },
+  {
+    "type": "dir",
+    "name": "static-hosting",
+    "label": "Static Hosting"
   }
 ]
