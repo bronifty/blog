@@ -7,8 +7,8 @@ hero:
   tagline: git r done
   actions:
     - theme: brand
-      text: first post
-      link: /s3-cloudfront-route53/
+      text: scenarios
+      link: /scenarios/static-hosting/s3-bucket-website
     - theme: alt
       text: GitHub
       link: https://github.com/bronifty

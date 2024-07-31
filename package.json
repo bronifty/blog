@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "clean": "rm -rf doc_build",
     "dev": "rspress dev",
-    "build": "rspress build",
-    "preview": "rspress preview",
-    "clean": "rm -rf doc_build"
+    "build": "pnpm clean && rspress build",
+    "preview": "rspress preview"
   },
   "dependencies": {
     "rspress": "^1.26.1"
