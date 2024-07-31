@@ -2,11 +2,11 @@
   {
     "type": "dir",
     "name": "system",
-    "label": "pluginSystem"
+    "label": "Plugin System"
   },
   {
     "type": "dir",
     "name": "official-plugins",
-    "label": "pluginList"
+    "label": "Plugin List"
   }
 ]
