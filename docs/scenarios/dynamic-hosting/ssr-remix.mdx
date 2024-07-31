@@ -2,7 +2,7 @@
 
 :::tip{title="Synopsis:"}
 
-We are going to deploy a remix run react router serverless app api routes with ssr to a lambda function and drop the client assets in an s3 bucket with cloudfront cdn routing everything.
+We are going to deploy a remix run react router serverless ssr app to a lambda function and drop the client assets in an s3 bucket with cloudfront cdn routing.
 
 :::
 
@@ -57,6 +57,23 @@ const handler = async (event, context) => {
 };
 
 export { app, handler };
+```
+
+```js
+// esbuild.mjs
+import * as esbuild from "esbuild";
+
+await esbuild.build({
+  entryPoints: ["lambda.js"],
+  bundle: true,
+  platform: "node",
+  target: "node20",
+  format: "cjs", // Change format to CommonJS
+  outfile: "lambda.cjs", // Change output file extension to .cjs
+  external: ["node:fs", "node:path", "node:crypto"],
+});
+
+console.log("Build complete");
 ```
 
 ## Local Test Harness (Validate App Router and Handler)
