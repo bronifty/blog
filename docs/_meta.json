@@ -1,7 +1,7 @@
 [
   {
     "text": "scenarios",
-    "link": "/scenarios/system/introduction",
+    "link": "/scenarios/static-hosting/s3-bucket-website",
     "activeMatch": "^/scenarios/"
   }
 ]
