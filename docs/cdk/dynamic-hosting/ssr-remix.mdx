@@ -1,0 +1,125 @@
+# Serverless Remix
+
+:::tip{title="Synopsis:"}
+We are going to deploy a serverless remix app on lambda with a bucket for the assets and cloudfront cdn cache protection and routing. Details of server function and build process are on the next page. This will be the aws manual deployment steps.
+:::
+
+[github repo](https://github.com/bronifty/rspress-blog/tree/main/blog-app-examples/remix-lambda)
+
+## Create Blank Lambda Function
+
+Chose all the defaults and click create. Next we are going to make a config update to make sure the handler name is reachable by the service.
+
+![create-function](./assets/create-function.png)
+
+![edit-function-config-handler](./assets/edit-function-config-handler.png)
+
+## Upload Function
+
+Once that function is created in the console, we will have access to it in the aws explorer for vs code where we can upload to it directly from the repo (it could also be dragged and dropped in the console).
+
+![upload-function](./assets/upload-function.png)
+
+![zip-directory](./assets/zip-directory.png)
+
+![upload-confirmation](./assets/upload-confirmation.png)
+
+## Invoke Function
+
+Once that's uploaded let's invoke it with a lambda-related event type such as api gateway proxy or cloudfront request.
+
+![invoke-function](./assets/invoke-function.png)
+
+![choose-event-type](./assets/choose-event-type.png)
+
+:::danger{title="t-shoot"}
+If you get an error you will need to troubleshoot it. Make sure you named the function in aws the same as it is named in the zip archive. Details about building and zipping the code are on the next page. It can also be inferred via package.json linked above.
+:::
+
+## Create Function URL
+
+Create a function url in order to integrate this with any service via direct api request without a gateway.
+
+![create-function-url](./assets/create-function-url.png)
+
+![configure-function-url](./assets/configure-function-url.png)
+
+![copy-function-url](./assets/copy-function-url.png)
+
+## Visit App
+
+Visit the remix app in the browser to confirm it works and make sure to click it and make sure it is interactive.
+
+![visit-app-browser](./assets/visit-app-browser.png)
+
+## Cloudfront Distribution
+
+Create a Cloudfront Distribution with the function as origin. We will leave the security open for now and take up auth in a subsequent lesson.
+
+:::warning
+aside from the function url origin leave all the defaults and click create distribution. Note: current settings will ask you to choose WAF or not; you can select no.
+:::
+
+![create-distribution](./assets/create-distribution.png)
+
+![function-url-origin](./assets/function-url-origin.png)
+
+:::danger{title="t-shoot"}
+make sure to test the distribution to make sure it can access the default route to your function url.
+:::
+
+## Assets bucket
+
+Create an assets bucket with all defaults and drop your frontend build assets into it.
+
+:::info
+you want just the client assets folder (and the favicon) not the parent build folder, based on the way it is currently set up.
+:::
+
+:::warning
+steps to build the remix app and get the static assets folder is on the next page in function details.
+:::
+
+![create-assets-bucket](./assets/create-assets-bucket.png)
+![client-assets](./assets/client-assets.png)
+![upload-client-assets](./assets/upload-client-assets.png)
+
+## Distribution Assets Origin
+
+Create a new origin for the distribution with the assets bucket and set the behavior for the assets path to that bucket. The distribution will use an origin access control (OAC) to allow the assets bucket to be accessed. This will involve copying the oac policy to the bucket.
+
+1. Create the origin
+
+![distro-create-origin](./assets/distro-create-origin.png)
+
+![distro-origin-settings](./assets/distro-origin-settings.png)
+
+2. Create the OAC
+
+![distro-oac](./assets/distro-oac.png)
+
+![distro-create-oac](./assets/distro-create-oac.png)
+
+3. Copy the OAC policy to the bucket
+
+![distro-bucket-policy](./assets/distro-bucket-policy.png)
+
+![bucket-permissions](./assets/bucket-permissions.png)
+
+![bucket-paste-policy](./assets/bucket-paste-policy.png)
+
+## Distribution Assets behavior
+
+Create a behavior (route) for the assets path to the assets bucket origin. Use defaults other than the route and the origin.
+
+![distro-create-behavior](./assets/distro-create-behavior.png)
+
+![distro-behavior-settings](./assets/distro-behavior-settings.png)
+
+:::danger{title="t-shoot"}
+make sure to test the distribution to make sure it can access the assets route to your assets bucket.
+:::
+
+:::warning{title="Details"}
+[function and code build details next page](/scenarios/dynamic-hosting/function-details)
+:::
