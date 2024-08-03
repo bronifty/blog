@@ -1,6 +1,4 @@
-import { handler, app, serverlessHandler } from "../lambda.js";
-// import { handler, app, serverlessHandler } from "../lambda.cjs";
-import { normalizeRequest } from "../utils/normalize-request.js";
+import { serverlessHandler } from "../lambda.js";
 import fs from "fs/promises";
 import path from "path";
 
@@ -14,8 +12,6 @@ const apigRequest = await readJsonFile("apig.json");
 const cloudfrontRequest = await readJsonFile("cloudfront.json");
 
 async function main(event) {
-  // const normalizedRequest = normalizeRequest(event);
-  // const result = await handler(normalizedRequest);
   const result = await serverlessHandler(event);
   console.log(result.body);
 }

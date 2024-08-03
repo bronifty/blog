@@ -6,17 +6,24 @@
 
 We are going to create the most basic app with only 2 routes and a shared counter (code not state) to demonstrate deploying an ssr app with lambda and a bucket, routed by cloudfront.
 
-:::note
+:::tip
 In an ssr app, there are 3 routers:
 
 1. api GET and POST for initial load and actions/mutations on the route (ssr html with api data)
 2. static assets for interactivity (server middleware or a bucket)
 3. client browser history (push and pop state for that spa effect)
-   :::
+
+:::
 
 ```sh
 npx create-remix@latest
 ```
+
+## Lambda Function
+
+The lambda function is a custom server entrypoint for the remix app which serves as a request handler for the server file in the build folder, which is imported as a module. This is the api router (#1 listed above in tip). If you'll notice, we have the middleware for static assets turned off / ghosted / commented out. We will instead use a bucket to host static assets (#2 listed above in tip). The 3rd router (client browser history) is handled by the react router functionality of remix itself.
+
+Notably, we are importing the api server file, and creating a router from express which is passed to a package to format the event handling for lambda called serverless-http.
 
 ```js
 // lambda.js
@@ -39,6 +46,10 @@ const handler = serverless(app);
 export { handler };
 ```
 
+## Build Lambda Function
+
+In order to deploy this, it will need to be built to a javascript node format that is compatible with lambda. We will use esbuild. Here is it's configuration.
+
 ```js
 // esbuild.mjs
 import * as esbuild from "esbuild";
@@ -56,12 +67,24 @@ await esbuild.build({
 console.log("Build complete");
 ```
 
+## Package.json
+
+By way of background, here are the package.json scripts I'm using for convenience to run the commands. Build runs the esbuild file. Test will create an entrypoint that passes an event to the serverless handler function. Zip puts the server files in an archive in a format that is compatible with lambda.
+
+```json
+"clean": "rm -rf build lambda.cjs lambda.zip",
+"build": "pnpm clean && remix vite:build && node esbuild.mjs",
+"test": "pnpm build && node ./test/local.js",
+"zip": "zip -r lambda.zip lambda.cjs build"
+```
+
 ## Local Test Harness (Validate App Router and Handler)
+
+This uses a local event file for api gateway and cloudfront, which can be found in the accompanying repo mentioned up top.
 
 ```js
 //local.js
-import { handler, app } from "../lambda.cjs"; // the lambda function built by esbuild from the above lambda.js file
-import { normalizeRequest } from "../utils/normalize-request.js";
+import { serverlessHandler } from "../lambda.js";
 import fs from "fs/promises";
 import path from "path";
 
@@ -75,98 +98,14 @@ const apigRequest = await readJsonFile("apig.json");
 const cloudfrontRequest = await readJsonFile("cloudfront.json");
 
 async function main(event) {
-  const normalizedRequest = normalizeRequest(event);
-  const result = await handler(normalizedRequest);
-  console.log(result);
+  const result = await serverlessHandler(event);
+  console.log(result.body);
 }
 
+main(apigRequest);
 main(cloudfrontRequest);
-
-app.listen(3000, () => {
-  console.log("Server is running on port 3000");
-});
 ```
 
-```js
-// normalize-request.js
-function normalizeRequest(event) {
-  let headers = {};
-  let method = "";
-  let uri = "";
-  let clientIp = "";
+## Build
 
-  if (event.Records) {
-    // CloudFront request
-    const cfRequest = event.Records[0].cf.request;
-    headers = cfRequest.headers;
-    method = cfRequest.method;
-    uri = cfRequest.uri;
-    clientIp = cfRequest.clientIp;
-  } else {
-    // API Gateway request
-    headers = event.headers;
-    method = event.httpMethod;
-    uri = event.path;
-    clientIp = event.requestContext.identity.sourceIp;
-  }
-
-  // Normalize headers to a single object
-  const normalizedHeaders = {};
-  for (const [key, value] of Object.entries(headers)) {
-    if (Array.isArray(value)) {
-      normalizedHeaders[key.toLowerCase()] = value[0].value || value[0];
-    } else {
-      normalizedHeaders[key.toLowerCase()] = value;
-    }
-  }
-
-  return {
-    headers: normalizedHeaders,
-    method,
-    uri,
-    clientIp,
-  };
-}
-
-export { normalizeRequest };
-```
-
-```json
-// apig.json
-{
-  "Records": [
-    {
-      "cf": {
-        "config": {
-          "distributionId": "EXAMPLE"
-        },
-        "request": {
-          "uri": "/",
-          "method": "GET",
-          "clientIp": "2001:cdba::3257:9652",
-          "headers": {
-            "host": [
-              {
-                "key": "Host",
-                "value": "d123.cf.net"
-              }
-            ],
-            "user-agent": [
-              {
-                "key": "User-Agent",
-                "value": "Test Agent"
-              }
-            ],
-            "user-name": [
-              {
-                "key": "User-Name",
-                "value": "aws-cloudfront"
-              }
-            ]
-          }
-        }
-      }
-    }
-  ]
-}
-```
+Lastly, the remix app will need to be built on the client and server. The esbuild handles the server, which outputs to lambda. Vite, as is currently managing remix, will run and bundle the client files (as well as the server file that the lambda imports).
