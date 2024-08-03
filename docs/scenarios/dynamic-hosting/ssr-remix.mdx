@@ -64,6 +64,10 @@ aside from the function url origin leave all the defaults and click create distr
 
 ![function-url-origin](./assets/function-url-origin.png)
 
+:::danger{title="t-shoot"}
+make sure to test the distribution to make sure it can access the default route to your function url.
+:::
+
 ## Assets bucket
 
 Create an assets bucket with all defaults and drop your frontend build assets into it.
@@ -80,17 +84,23 @@ steps to build the remix app and get the static assets folder is on the next pag
 ![client-assets](./assets/client-assets.png)
 ![upload-client-assets](./assets/upload-client-assets.png)
 
-## Distribution Origin
+## Distribution Assets Origin
 
 Create a new origin for the distribution with the assets bucket and set the behavior for the assets path to that bucket. The distribution will use an origin access control (OAC) to allow the assets bucket to be accessed. This will involve copying the oac policy to the bucket.
+
+1. Create the origin
 
 ![distro-create-origin](./assets/distro-create-origin.png)
 
 ![distro-origin-settings](./assets/distro-origin-settings.png)
 
+2. Create the OAC
+
 ![distro-oac](./assets/distro-oac.png)
 
 ![distro-create-oac](./assets/distro-create-oac.png)
+
+3. Copy the OAC policy to the bucket
 
 ![distro-bucket-policy](./assets/distro-bucket-policy.png)
 
@@ -98,9 +108,17 @@ Create a new origin for the distribution with the assets bucket and set the beha
 
 ![bucket-paste-policy](./assets/bucket-paste-policy.png)
 
+## Distribution Assets behavior
+
+Create a behavior (route) for the assets path to the assets bucket origin. Use defaults other than the route and the origin.
+
 ![distro-create-behavior](./assets/distro-create-behavior.png)
 
 ![distro-behavior-settings](./assets/distro-behavior-settings.png)
+
+:::danger{title="t-shoot"}
+make sure to test the distribution to make sure it can access the assets route to your assets bucket.
+:::
 
 :::warning{title="Details"}
 [function and code build details next page](/scenarios/dynamic-hosting/function-details)
