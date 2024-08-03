@@ -52,6 +52,36 @@ Visit the remix app in the browser to confirm it works and make sure to click it
 
 ![visit-app-browser](./assets/visit-app-browser.png)
 
+## Cloudfront Distribution
+
+Create a Cloudfront Distribution with the function as origin. We will leave the security open for now and take up auth in a subsequent lesson.
+
+:::warning
+aside from the function url origin leave all the defaults and click create distribution. Note: current settings will ask you to choose WAF or not; you can select no.
+:::
+
+![create-distribution](./assets/create-distribution.png)
+
+![function-url-origin](./assets/function-url-origin.png)
+
+## Assets bucket
+
+Create an assets bucket with all defaults and drop your frontend build assets into it.
+
+:::info
+you want just the client assets folder (and the favicon) not the parent build folder, based on the way it is currently set up.
+:::
+
+:::warning
+steps to build the remix app and get the static assets folder is on the next page in function details.
+:::
+
+![create-assets-bucket](./assets/create-assets-bucket.png)
+![client-assets](./assets/client-assets.png)
+![upload-client-assets](./assets/upload-client-assets.png)
+
+##
+
 :::warning{title="Details"}
 [function and code build details next page](/scenarios/dynamic-hosting/function-details)
 :::
