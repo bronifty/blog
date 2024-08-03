@@ -11,20 +11,8 @@ export class CdkStaticHostingStack extends cdk.Stack {
 
     const bucket = new cdk.aws_s3.Bucket(this, "bronifty-deleteme", {});
 
-    // Create S3 origin without OAI
-    const s3Origin = new cdk.aws_cloudfront_origins.S3Origin(bucket, {
-      originAccessIdentity: undefined, // This disables OAI
-    });
-
-    // Create CloudFront OAC
-    const oac = new cdk.aws_cloudfront.CfnOriginAccessControl(this, "OAC", {
-      originAccessControlConfig: {
-        name: "OAC for S3 Static Website",
-        originAccessControlOriginType: "s3",
-        signingBehavior: "always",
-        signingProtocol: "sigv4",
-      },
-    });
+    // Create S3 origin which includes a default OAI; use lower level CfnDistribution in an updated version to use an OAC and attach it instead of OAI, which is now the outdated aws tech
+    const s3Origin = new cdk.aws_cloudfront_origins.S3Origin(bucket);
 
     // Create CloudFront distribution
     const distribution = new cdk.aws_cloudfront.Distribution(
@@ -40,13 +28,13 @@ export class CdkStaticHostingStack extends cdk.Stack {
       }
     );
 
-    // Attach OAC to the distribution
-    const cfnDistribution = distribution.node
-      .defaultChild as cdk.aws_cloudfront.CfnDistribution;
-    cfnDistribution.addPropertyOverride(
-      "DistributionConfig.Origins.0.OriginAccessControlId",
-      oac.getAtt("Id")
-    );
+    // // Attach OAC to the distribution
+    // const cfnDistribution = distribution.node
+    //   .defaultChild as cdk.aws_cloudfront.CfnDistribution;
+    // cfnDistribution.addPropertyOverride(
+    //   "DistributionConfig.Origins.0.OriginAccessControlId",
+    //   oac.getAtt("Id")
+    // );
 
     // Update bucket policy
     bucket.addToResourcePolicy(
@@ -79,7 +67,7 @@ export class CdkStaticHostingStack extends cdk.Stack {
       }
     );
 
-    // Export the Function URL as a stack output
+    // Export the bucket name as a stack output
     new cdk.CfnOutput(this, "bucketName", {
       value: bucket.bucketName,
       description: "name of the S3 bucket",
