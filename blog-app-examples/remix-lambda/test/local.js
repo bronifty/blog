@@ -1,4 +1,4 @@
-import { serverlessHandler } from "../lambda.js";
+import { handler } from "../lambda.js";
 import fs from "fs/promises";
 import path from "path";
 
@@ -12,7 +12,7 @@ const apigRequest = await readJsonFile("apig.json");
 const cloudfrontRequest = await readJsonFile("cloudfront.json");
 
 async function main(event) {
-  const result = await serverlessHandler(event);
+  const result = await handler(event);
   console.log(result.body);
 }
 
