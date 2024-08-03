@@ -11,12 +11,12 @@ export class CdkStaticHostingStack extends cdk.Stack {
     super(scope, id, props);
 
     // Create S3 bucket
-    const bucket = new s3.Bucket(this, "StaticWebsiteBucket", {
+    const bucket = new s3.Bucket(this, "StaticWebsiteBucket2", {
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
     });
 
     // Create Origin Access Control
-    const oac = new cloudfront.CfnOriginAccessControl(this, "OAC", {
+    const oac = new cloudfront.CfnOriginAccessControl(this, "OAC2", {
       originAccessControlConfig: {
         name: "OAC for S3 Static Website",
         originAccessControlOriginType: "s3",
@@ -26,12 +26,12 @@ export class CdkStaticHostingStack extends cdk.Stack {
     });
 
     // Create CloudFront distribution using CfnDistribution
-    const distribution = new cloudfront.CfnDistribution(this, "Distribution", {
+    const distribution = new cloudfront.CfnDistribution(this, "Distribution2", {
       distributionConfig: {
         enabled: true,
         defaultRootObject: "index.html",
         defaultCacheBehavior: {
-          targetOriginId: "S3Origin",
+          targetOriginId: "S3Origin2",
           viewerProtocolPolicy: "redirect-to-https",
           allowedMethods: ["GET", "HEAD", "OPTIONS"],
           cachedMethods: ["GET", "HEAD"],
@@ -41,7 +41,7 @@ export class CdkStaticHostingStack extends cdk.Stack {
         },
         origins: [
           {
-            id: "S3Origin",
+            id: "S3Origin2",
             domainName: bucket.bucketRegionalDomainName,
             originAccessControlId: oac.getAtt("Id").toString(),
             s3OriginConfig: {},
@@ -65,12 +65,12 @@ export class CdkStaticHostingStack extends cdk.Stack {
     );
 
     // Deploy website content
-    new s3deploy.BucketDeployment(this, "DeployWebsite", {
+    new s3deploy.BucketDeployment(this, "DeployWebsite2", {
       sources: [s3deploy.Source.asset(`${getProjectRoot()}/../../doc_build`)],
       destinationBucket: bucket,
       distribution: cloudfront.Distribution.fromDistributionAttributes(
         this,
-        "ImportedDistribution",
+        "ImportedDistribution2",
         {
           domainName: distribution.attrDomainName,
           distributionId: distribution.ref,
@@ -80,7 +80,7 @@ export class CdkStaticHostingStack extends cdk.Stack {
     });
 
     // Output CloudFront URL
-    new cdk.CfnOutput(this, "DistributionUrl", {
+    new cdk.CfnOutput(this, "DistributionUrl2", {
       value: `https://${distribution.attrDomainName}`,
       description: "CloudFront Distribution URL",
     });
