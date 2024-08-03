@@ -11,6 +11,11 @@ export class CdkStaticHostingStack extends cdk.Stack {
 
     const bucket = new cdk.aws_s3.Bucket(this, "bronifty-deleteme", {});
 
+    // Create S3 origin without OAI
+    const s3Origin = new cdk.aws_cloudfront_origins.S3Origin(bucket, {
+      originAccessIdentity: undefined, // This disables OAI
+    });
+
     // Create CloudFront OAC
     const oac = new cdk.aws_cloudfront.CfnOriginAccessControl(this, "OAC", {
       originAccessControlConfig: {
@@ -27,9 +32,7 @@ export class CdkStaticHostingStack extends cdk.Stack {
       "Distribution",
       {
         defaultBehavior: {
-          origin: new cdk.aws_cloudfront_origins.S3Origin(bucket, {
-            originAccessIdentity: undefined, // Disable OAI
-          }),
+          origin: s3Origin,
           viewerProtocolPolicy:
             cdk.aws_cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
         },
