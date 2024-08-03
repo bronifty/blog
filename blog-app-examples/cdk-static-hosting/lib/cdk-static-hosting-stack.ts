@@ -9,12 +9,13 @@ export class CdkStaticHostingStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
+    // create a bucket all defaults are good
     const bucket = new cdk.aws_s3.Bucket(this, "bronifty-deleteme", {});
 
     // Create S3 origin which includes a default OAI; use lower level CfnDistribution in an updated version to use an OAC and attach it instead of OAI, which is now the outdated aws tech
     const s3Origin = new cdk.aws_cloudfront_origins.S3Origin(bucket);
 
-    // Create CloudFront distribution
+    // Create CloudFront distribution using the S3 origin
     const distribution = new cdk.aws_cloudfront.Distribution(
       this,
       "Distribution",
@@ -27,14 +28,6 @@ export class CdkStaticHostingStack extends cdk.Stack {
         defaultRootObject: "index.html",
       }
     );
-
-    // // Attach OAC to the distribution
-    // const cfnDistribution = distribution.node
-    //   .defaultChild as cdk.aws_cloudfront.CfnDistribution;
-    // cfnDistribution.addPropertyOverride(
-    //   "DistributionConfig.Origins.0.OriginAccessControlId",
-    //   oac.getAtt("Id")
-    // );
 
     // Update bucket policy
     bucket.addToResourcePolicy(
@@ -74,7 +67,7 @@ export class CdkStaticHostingStack extends cdk.Stack {
       exportName: "bucketName",
     });
 
-    // Output CloudFront URL
+    // export CloudFront URL as stack output
     new cdk.CfnOutput(this, "DistributionUrl", {
       value: `https://${distribution.distributionDomainName}`,
       description: "CloudFront Distribution URL",
