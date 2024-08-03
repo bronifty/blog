@@ -8,5 +8,10 @@
     "type": "dir",
     "name": "dynamic-hosting",
     "label": "Dynamic Hosting"
+  },
+  {
+    "type": "dir",
+    "name": "debugging",
+    "label": "Debugging"
   }
 ]
