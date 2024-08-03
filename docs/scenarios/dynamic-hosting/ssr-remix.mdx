@@ -80,7 +80,27 @@ steps to build the remix app and get the static assets folder is on the next pag
 ![client-assets](./assets/client-assets.png)
 ![upload-client-assets](./assets/upload-client-assets.png)
 
-##
+## Distribution Origin
+
+Create a new origin for the distribution with the assets bucket and set the behavior for the assets path to that bucket. The distribution will use an origin access control (OAC) to allow the assets bucket to be accessed. This will involve copying the oac policy to the bucket.
+
+![distro-create-origin](./assets/distro-create-origin.png)
+
+![distro-origin-settings](./assets/distro-origin-settings.png)
+
+![distro-oac](./assets/distro-oac.png)
+
+![distro-create-oac](./assets/distro-create-oac.png)
+
+![distro-bucket-policy](./assets/distro-bucket-policy.png)
+
+![bucket-permissions](./assets/bucket-permissions.png)
+
+![bucket-paste-policy](./assets/bucket-paste-policy.png)
+
+![distro-create-behavior](./assets/distro-create-behavior.png)
+
+![distro-behavior-settings](./assets/distro-behavior-settings.png)
 
 :::warning{title="Details"}
 [function and code build details next page](/scenarios/dynamic-hosting/function-details)
