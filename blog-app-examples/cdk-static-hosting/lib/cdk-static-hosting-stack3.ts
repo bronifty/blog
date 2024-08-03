@@ -18,7 +18,7 @@ export class CdkStaticHostingStack extends cdk.Stack {
     // Create Origin Access Control
     const oac = new cloudfront.CfnOriginAccessControl(this, "OAC2", {
       originAccessControlConfig: {
-        name: "OAC for S3 Static Website",
+        name: "OAC2 for S3 Static Website",
         originAccessControlOriginType: "s3",
         signingBehavior: "always",
         signingProtocol: "sigv4",
