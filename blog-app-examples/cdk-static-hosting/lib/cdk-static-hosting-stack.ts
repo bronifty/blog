@@ -1,75 +1,87 @@
 import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
 import { getProjectRoot } from "@bronifty/fs-utils";
-import * as fs from "node:fs";
-
-console.log(fs.readdirSync(`${getProjectRoot()}/../../doc_build`));
+import * as s3 from "aws-cdk-lib/aws-s3";
+import * as cloudfront from "aws-cdk-lib/aws-cloudfront";
+import * as s3deploy from "aws-cdk-lib/aws-s3-deployment";
+import * as iam from "aws-cdk-lib/aws-iam";
 
 export class CdkStaticHostingStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    // create a bucket all defaults are good
-    const bucket = new cdk.aws_s3.Bucket(this, "bronifty-deleteme", {});
+    // Create S3 bucket
+    const bucket = new s3.Bucket(this, "StaticWebsiteBucket", {
+      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+    });
 
-    // Create S3 origin which includes a default OAI; use lower level CfnDistribution in an updated version to use an OAC and attach it instead of OAI, which is now the outdated aws tech
-    const s3Origin = new cdk.aws_cloudfront_origins.S3Origin(bucket);
+    // Create Origin Access Control
+    const oac = new cloudfront.CfnOriginAccessControl(this, "OAC", {
+      originAccessControlConfig: {
+        name: "OAC for S3 Static Website",
+        originAccessControlOriginType: "s3",
+        signingBehavior: "always",
+        signingProtocol: "sigv4",
+      },
+    });
 
-    // Create CloudFront distribution using the S3 origin
-    const distribution = new cdk.aws_cloudfront.Distribution(
-      this,
-      "Distribution",
-      {
-        defaultBehavior: {
-          origin: s3Origin,
-          viewerProtocolPolicy:
-            cdk.aws_cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-        },
+    // Create CloudFront distribution using CfnDistribution
+    const distribution = new cloudfront.CfnDistribution(this, "Distribution", {
+      distributionConfig: {
+        enabled: true,
         defaultRootObject: "index.html",
-      }
-    );
+        defaultCacheBehavior: {
+          targetOriginId: "S3Origin",
+          viewerProtocolPolicy: "redirect-to-https",
+          allowedMethods: ["GET", "HEAD", "OPTIONS"],
+          cachedMethods: ["GET", "HEAD"],
+          forwardedValues: {
+            queryString: false,
+          },
+        },
+        origins: [
+          {
+            id: "S3Origin",
+            domainName: bucket.bucketRegionalDomainName,
+            originAccessControlId: oac.getAtt("Id").toString(),
+            s3OriginConfig: {},
+          },
+        ],
+      },
+    });
 
     // Update bucket policy
     bucket.addToResourcePolicy(
-      new cdk.aws_iam.PolicyStatement({
+      new iam.PolicyStatement({
         actions: ["s3:GetObject"],
         resources: [bucket.arnForObjects("*")],
-        principals: [
-          new cdk.aws_iam.ServicePrincipal("cloudfront.amazonaws.com"),
-        ],
+        principals: [new iam.ServicePrincipal("cloudfront.amazonaws.com")],
         conditions: {
           StringEquals: {
-            "AWS:SourceArn": `arn:aws:cloudfront::${this.account}:distribution/${distribution.distributionId}`,
+            "AWS:SourceArn": `arn:aws:cloudfront::${this.account}:distribution/${distribution.ref}`,
           },
         },
       })
     );
 
-    const deployment = new cdk.aws_s3_deployment.BucketDeployment(
-      this,
-      "DeployWithCDK",
-      {
-        sources: [
-          cdk.aws_s3_deployment.Source.asset(
-            `${getProjectRoot()}/../../doc_build`
-          ),
-        ],
-        destinationBucket: bucket,
-        distribution,
-        distributionPaths: ["/*"],
-      }
-    );
-
-    // Export the bucket name as a stack output
-    new cdk.CfnOutput(this, "bucketName", {
-      value: bucket.bucketName,
-      description: "name of the S3 bucket",
-      exportName: "bucketName",
+    // Deploy website content
+    new s3deploy.BucketDeployment(this, "DeployWebsite", {
+      sources: [s3deploy.Source.asset(`${getProjectRoot()}/../../doc_build`)],
+      destinationBucket: bucket,
+      distribution: cloudfront.Distribution.fromDistributionAttributes(
+        this,
+        "ImportedDistribution",
+        {
+          domainName: distribution.attrDomainName,
+          distributionId: distribution.ref,
+        }
+      ),
+      distributionPaths: ["/*"],
     });
 
-    // export CloudFront URL as stack output
+    // Output CloudFront URL
     new cdk.CfnOutput(this, "DistributionUrl", {
-      value: `https://${distribution.distributionDomainName}`,
+      value: `https://${distribution.attrDomainName}`,
       description: "CloudFront Distribution URL",
     });
   }
