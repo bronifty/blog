@@ -31,6 +31,9 @@ jobs:
           role-session-name: GitHub_to_AWS_via_FederatedOIDC
           aws-region: ${{ env.AWS_REGION }}
 
+      - name: Set AWS account ID
+        run: echo "AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)" >> $GITHUB_ENV
+
       - name: Sts GetCallerIdentity
         run: aws sts get-caller-identity
 
@@ -62,3 +65,4 @@ jobs:
           cdk deploy --all --require-approval never
         env:
           AWS_REGION: ${{ env.AWS_REGION }}
+          AWS_ACCOUNT_ID: ${{ env.AWS_ACCOUNT_ID }}
