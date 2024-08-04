@@ -22,9 +22,6 @@ function getRegion(): string {
   return process.env.AWS_REGION;
 }
 
-// process.env.AWS_ACCOUNT_ID = "851725517932";
-// process.env.AWS_REGION = "us-east-1";
-
 const app = new cdk.App();
 new DynamicHostingStack(app, "DynamicHostingStack", {
   env: {
