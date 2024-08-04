@@ -37,11 +37,6 @@ export class CdkStaticHostingStack extends cdk.Stack {
       }
     );
 
-    // // Create S3 bucket
-    // const bucket = new s3.Bucket(this, "StaticWebsiteBucket", {
-    //   blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
-    // });
-
     // Create Origin Access Control
     const oac = new cloudfront.CfnOriginAccessControl(this, "OAC", {
       originAccessControlConfig: {
@@ -154,11 +149,6 @@ export class CdkStaticHostingStack extends cdk.Stack {
       distributionPaths: ["/*"],
     });
 
-    // Output CloudFront URL
-    new cdk.CfnOutput(this, "DistributionUrl", {
-      value: `https://${distribution.attrDomainName}`,
-      description: "CloudFront Distribution URL",
-    });
     new cdk.CfnOutput(this, "CustomDomainUrl", {
       value: `https://${domainName}`,
       description: "Custom Domain URL",
@@ -166,6 +156,14 @@ export class CdkStaticHostingStack extends cdk.Stack {
     new cdk.CfnOutput(this, "WWWCustomDomainUrl", {
       value: `https://${www}`,
       description: "WWW Custom Domain URL",
+    });
+    new cdk.CfnOutput(this, "DistributionUrl", {
+      value: `https://${distribution.attrDomainName}`,
+      description: "CloudFront Distribution URL",
+    });
+    new cdk.CfnOutput(this, "BucketUrl", {
+      value: `https://${bucket.bucketRegionalDomainName}`,
+      description: "S3 Bucket URL",
     });
   }
 }
