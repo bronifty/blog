@@ -5,7 +5,7 @@ on:
     branches: [main]
 
 env:
-  AWS_REGION: "us-east-1" #Change to reflect your Region
+  AWS_REGION: "us-east-1"
 
 permissions:
   id-token: write
@@ -37,12 +37,21 @@ jobs:
       - name: Install AWS CDK CLI
         run: npm install -g aws-cdk
 
-      - name: Install project dependencies
+      - name: Install root project dependencies
+        run: npm ci
+
+      - name: Build documentation
+        run: npm run build # Adjust this command based on your actual build script
+
+      - name: List contents of doc_build
+        run: ls -R ./doc_build
+
+      - name: Install CDK project dependencies
         run: |
           cd ./blog-app-examples/cdk-static-hosting
           npm ci
 
-      - name: Build project
+      - name: Build CDK project
         run: |
           cd ./blog-app-examples/cdk-static-hosting
           npm run build
