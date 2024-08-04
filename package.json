@@ -5,7 +5,7 @@
   "scripts": {
     "clean": "rm -rf doc_build",
     "dev": "rspress dev",
-    "build": "pnpm clean && rspress build",
+    "build": "npm clean && rspress build",
     "preview": "rspress preview",
     "cdk": "cd ./blog-app-examples/cdk-static-hosting && cdk"
   },
