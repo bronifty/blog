@@ -7,6 +7,8 @@ import { LambdaStack } from "../lib/lambda-stack";
 // if your github actions workflow does not set these env vars or you don't have them preset somewhere in a file perhaps, then just hardcode them here.
 process.env.AWS_ACCOUNT_ID = "851725517932";
 process.env.AWS_REGION = "us-east-1";
+process.env.CERTIFICATE_ARN =
+  "arn:aws:acm:us-east-1:851725517932:certificate/f5164cd1-7532-42ba-b194-ad681a98c7f4";
 
 // Function to get AWS account ID from environment variable
 function getAccountId(): string {
@@ -20,6 +22,11 @@ function getRegion(): string {
   return process.env.AWS_REGION || "";
 }
 
+function getCertificateArn(): string {
+  console.log(process.env.CERTIFICATE_ARN);
+  return process.env.CERTIFICATE_ARN || "";
+}
+
 const app = new cdk.App();
 const lambdaStack = new LambdaStack(app, "LambdaStack", {
   env: {
@@ -29,6 +36,7 @@ const lambdaStack = new LambdaStack(app, "LambdaStack", {
 });
 new DynamicHostingStack(app, "DynamicHostingStack", {
   functionUrl: lambdaStack.functionUrl,
+  certificateArn: getCertificateArn(),
   env: {
     account: getAccountId(),
     region: getRegion(),
