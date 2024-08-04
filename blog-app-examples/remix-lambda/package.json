@@ -10,9 +10,9 @@
     "typecheck": "tsc",
     "build:server": "node esbuild.mjs",
     "clean": "rm -rf build lambda.cjs lambda.zip",
-    "build": "npm clean && remix vite:build && node esbuild.mjs",
+    "build": "npm run clean && remix vite:build && node esbuild.mjs",
     "zip": "zip -r lambda.zip lambda.cjs build",
-    "test": "npm build && node ./test/local.js"
+    "test": "npm run build && node ./test/local.js"
   },
   "dependencies": {
     "@remix-run/express": "^2.10.3",

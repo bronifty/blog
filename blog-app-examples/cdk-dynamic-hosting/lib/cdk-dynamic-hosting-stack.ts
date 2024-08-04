@@ -5,60 +5,67 @@ import * as s3 from "aws-cdk-lib/aws-s3";
 import * as cloudfront from "aws-cdk-lib/aws-cloudfront";
 import * as s3deploy from "aws-cdk-lib/aws-s3-deployment";
 import * as iam from "aws-cdk-lib/aws-iam";
+import { getDomainName } from "./utils";
 
-console.log(`${getProjectRoot()}/../../doc_build`);
+const codePath = `${getProjectRoot()}/../remix-lambda/build/client`;
+console.log(codePath);
+
+interface DynamicHostingStackProps extends cdk.StackProps {
+  functionUrl: cdk.aws_lambda.FunctionUrl;
+}
 
 export class DynamicHostingStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+  constructor(scope: Construct, id: string, props: DynamicHostingStackProps) {
     super(scope, id, props);
 
-    const domainName = "bronifty.xyz";
-    const www = `www.${domainName}`;
+    const functionUrlDomainName = getDomainName(props.functionUrl.url);
+
+    // const domainName = "bronifty.xyz";
+    // const www = `www.${domainName}`;
     const bucket = s3.Bucket.fromBucketArn(
       this,
       "ExistingBucket",
-      "arn:aws:s3:::bronifty.xyz"
-    );
+      "arn:aws:s3:::www.bronifty.xyz"
+    ); // note: using an existing bucket will require a manual step to update the bucket policy to allow cloudfront to access the bucket
+    // TODO: refactor to use a new bucket with custom name
 
-    // Look up the hosted zone
-    const zone = cdk.aws_route53.HostedZone.fromLookup(this, "Zone", {
-      domainName,
-    });
+    // // Look up the hosted zone
+    // const zone = cdk.aws_route53.HostedZone.fromLookup(this, "Zone", {
+    //   domainName,
+    // });
 
-    // Create a certificate
-    const certificate = new cdk.aws_certificatemanager.Certificate(
-      this,
-      "Certificate",
-      {
-        domainName: domainName,
-        subjectAlternativeNames: [www],
-        validation:
-          cdk.aws_certificatemanager.CertificateValidation.fromDns(zone),
-      }
-    );
+    // // Create a certificate
+    // const certificate = new cdk.aws_certificatemanager.Certificate(
+    //   this,
+    //   "Certificate",
+    //   {
+    //     domainName: domainName,
+    //     subjectAlternativeNames: [www],
+    //     validation:
+    //       cdk.aws_certificatemanager.CertificateValidation.fromDns(zone),
+    //   }
+    // );
 
-    const lambda = new cdk.aws_lambda.Function(this, "remix-lambda", {
-      runtime: cdk.aws_lambda.Runtime.NODEJS_20_X,
-      handler: "lambda.handler",
-      code: cdk.aws_lambda.Code.fromAsset(
-        `${getProjectRoot()}/../remix-lambda/deploy.zip`
-      ), // requires the remix-lambda project to be built and zipped first
-    });
+    // const lambda = new cdk.aws_lambda.Function(this, "remix-lambda", {
+    //   runtime: cdk.aws_lambda.Runtime.NODEJS_20_X,
+    //   handler: "lambda.handler",
+    //   code: cdk.aws_lambda.Code.fromAsset(codePath), // requires the remix-lambda project to be built and zipped first
+    // });
 
-    // Create a Function URL for the Lambda
-    const functionUrl = lambda.addFunctionUrl({
-      authType: cdk.aws_lambda.FunctionUrlAuthType.NONE,
-      cors: {
-        allowedOrigins: ["*"],
-        allowedMethods: [cdk.aws_lambda.HttpMethod.ALL],
-        allowedHeaders: ["*"],
-      },
-    });
+    // // Create a Function URL for the Lambda
+    // const functionUrl = lambda.addFunctionUrl({
+    //   authType: cdk.aws_lambda.FunctionUrlAuthType.NONE,
+    //   cors: {
+    //     allowedOrigins: ["*"],
+    //     allowedMethods: [cdk.aws_lambda.HttpMethod.ALL],
+    //     allowedHeaders: ["*"],
+    //   },
+    // });
 
     // Create Origin Access Control
-    const oac = new cloudfront.CfnOriginAccessControl(this, "OAC", {
+    const oac = new cloudfront.CfnOriginAccessControl(this, "oac-for-assets", {
       originAccessControlConfig: {
-        name: "OAC for S3 Static Website",
+        name: "OAC for /assets/*",
         originAccessControlOriginType: "s3",
         signingBehavior: "always",
         signingProtocol: "sigv4",
@@ -69,14 +76,27 @@ export class DynamicHostingStack extends cdk.Stack {
     const distribution = new cloudfront.CfnDistribution(this, "Distribution", {
       distributionConfig: {
         enabled: true,
-        defaultRootObject: "index.html",
+        // defaultRootObject: "index.html",
         defaultCacheBehavior: {
-          targetOriginId: "S3Origin",
+          targetOriginId: "LambdaOrigin", // Change this to target the Lambda origin
           viewerProtocolPolicy: "redirect-to-https",
-          allowedMethods: ["GET", "HEAD", "OPTIONS"],
+          allowedMethods: [
+            "GET",
+            "HEAD",
+            "OPTIONS",
+            "PUT",
+            "PATCH",
+            "POST",
+            "DELETE",
+          ], // Allow all methods
           cachedMethods: ["GET", "HEAD"],
           forwardedValues: {
-            queryString: false,
+            queryString: true, // Forward query strings to Lambda
+            headers: [
+              "Origin",
+              "Access-Control-Request-Headers",
+              "Access-Control-Request-Method",
+            ], // Forward necessary headers
           },
         },
         origins: [
@@ -86,13 +106,34 @@ export class DynamicHostingStack extends cdk.Stack {
             originAccessControlId: oac.getAtt("Id").toString(),
             s3OriginConfig: {},
           },
+          {
+            id: "LambdaOrigin",
+            domainName: functionUrlDomainName,
+            customOriginConfig: {
+              httpPort: 80,
+              httpsPort: 443,
+              originProtocolPolicy: "https-only",
+            },
+          },
         ],
-        viewerCertificate: {
-          acmCertificateArn: certificate.certificateArn,
-          sslSupportMethod: "sni-only",
-          minimumProtocolVersion: "TLSv1.2_2021",
-        },
-        aliases: [domainName, www],
+        cacheBehaviors: [
+          {
+            pathPattern: "/assets/*", // Adjust this pattern to match your static asset paths
+            targetOriginId: "S3Origin",
+            viewerProtocolPolicy: "redirect-to-https",
+            allowedMethods: ["GET", "HEAD", "OPTIONS"],
+            cachedMethods: ["GET", "HEAD"],
+            forwardedValues: {
+              queryString: false,
+            },
+          },
+        ],
+        // viewerCertificate: {
+        //   acmCertificateArn: certificate.certificateArn,
+        //   sslSupportMethod: "sni-only",
+        //   minimumProtocolVersion: "TLSv1.2_2021",
+        // },
+        // aliases: [domainName, www],
         customErrorResponses: [
           {
             errorCode: 403,
@@ -110,33 +151,33 @@ export class DynamicHostingStack extends cdk.Stack {
       },
     });
 
-    // Create an IDistribution interface from the CfnDistribution
-    const distributionInterface =
-      cloudfront.Distribution.fromDistributionAttributes(
-        this,
-        "ImportedDistributionInterface",
-        {
-          domainName: distribution.attrDomainName,
-          distributionId: distribution.ref,
-        }
-      );
+    // // Create an IDistribution interface from the CfnDistribution
+    // const distributionInterface =
+    //   cloudfront.Distribution.fromDistributionAttributes(
+    //     this,
+    //     "ImportedDistributionInterface",
+    //     {
+    //       domainName: distribution.attrDomainName,
+    //       distributionId: distribution.ref,
+    //     }
+    //   );
 
-    // Create Route 53 records
-    new cdk.aws_route53.ARecord(this, "AliasRecord", {
-      zone,
-      recordName: domainName,
-      target: cdk.aws_route53.RecordTarget.fromAlias(
-        new cdk.aws_route53_targets.CloudFrontTarget(distributionInterface)
-      ),
-    });
+    // // Create Route 53 records
+    // new cdk.aws_route53.ARecord(this, "AliasRecord", {
+    //   zone,
+    //   recordName: domainName,
+    //   target: cdk.aws_route53.RecordTarget.fromAlias(
+    //     new cdk.aws_route53_targets.CloudFrontTarget(distributionInterface)
+    //   ),
+    // });
 
-    new cdk.aws_route53.ARecord(this, "WWWAliasRecord", {
-      zone,
-      recordName: www,
-      target: cdk.aws_route53.RecordTarget.fromAlias(
-        new cdk.aws_route53_targets.CloudFrontTarget(distributionInterface)
-      ),
-    });
+    // new cdk.aws_route53.ARecord(this, "WWWAliasRecord", {
+    //   zone,
+    //   recordName: www,
+    //   target: cdk.aws_route53.RecordTarget.fromAlias(
+    //     new cdk.aws_route53_targets.CloudFrontTarget(distributionInterface)
+    //   ),
+    // });
 
     // Update bucket policy
     bucket.addToResourcePolicy(
@@ -154,7 +195,7 @@ export class DynamicHostingStack extends cdk.Stack {
 
     // Deploy website content
     new s3deploy.BucketDeployment(this, "DeployWebsite", {
-      sources: [s3deploy.Source.asset(`${getProjectRoot()}/../../doc_build`)],
+      sources: [s3deploy.Source.asset(codePath)],
       destinationBucket: bucket,
       distribution: cloudfront.Distribution.fromDistributionAttributes(
         this,
@@ -167,14 +208,14 @@ export class DynamicHostingStack extends cdk.Stack {
       distributionPaths: ["/*"],
     });
 
-    new cdk.CfnOutput(this, "CustomDomainUrl", {
-      value: `https://${domainName}`,
-      description: "Custom Domain URL",
-    });
-    new cdk.CfnOutput(this, "WWWCustomDomainUrl", {
-      value: `https://${www}`,
-      description: "WWW Custom Domain URL",
-    });
+    // new cdk.CfnOutput(this, "CustomDomainUrl", {
+    //   value: `https://${domainName}`,
+    //   description: "Custom Domain URL",
+    // });
+    // new cdk.CfnOutput(this, "WWWCustomDomainUrl", {
+    //   value: `https://${www}`,
+    //   description: "WWW Custom Domain URL",
+    // });
     new cdk.CfnOutput(this, "DistributionUrl", {
       value: `https://${distribution.attrDomainName}`,
       description: "CloudFront Distribution URL",
@@ -182,12 +223,6 @@ export class DynamicHostingStack extends cdk.Stack {
     new cdk.CfnOutput(this, "BucketUrl", {
       value: `https://${bucket.bucketRegionalDomainName}`,
       description: "S3 Bucket URL",
-    });
-    // Export the Function URL as a stack output
-    new cdk.CfnOutput(this, "LambdaFunctionUrl", {
-      value: functionUrl.url,
-      description: "URL of the Lambda function",
-      exportName: "RemixLambdaFunctionUrl",
     });
   }
 }
