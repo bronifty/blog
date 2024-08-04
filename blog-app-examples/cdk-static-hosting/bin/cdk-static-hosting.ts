@@ -2,7 +2,7 @@
 import "source-map-support/register";
 import * as cdk from "aws-cdk-lib";
 import { CdkStaticHostingStack } from "../lib/cdk-static-hosting-stack";
-import { execSync } from "child_process";
+import { execSync } from "node:child_process";
 
 // Function to get AWS account ID
 function getAccountId(): string {
