@@ -20,6 +20,10 @@ This app is actually multiple stacks with properties passed in from outputs of o
 
 ## App Launcher
 
+The cdk app launcher imports the stacks and constructs them in its own application scope (the parent of the cdk construct tree). A certificate arn is set as an environment variable mainly because it is a pain to handle it otherwise. Other environment variables are set in the github actions workflow.
+
+The lambda stack passes its own function url property to the main stack with the distribution bucket and dns. The main stack uses the property of the parent lambda stack as an argument to its constructor (dependency injection). This argument is used to set the distribution's origin to the lambda function url.
+
 ```ts
 #!/usr/bin/env node
 import "source-map-support/register";
@@ -63,4 +67,222 @@ new DynamicHostingStack(app, "DynamicHostingStack", {
     region: getRegion(),
   },
 });
+```
+
+## Main Stack
+
+The main stack receives the function url and cert as props which are used to configure the distribution. ssr is used as a subdomain for the apex domain and that is assigned to the distribution as an alias (cname). A bucket and lambda are both configured as origins and behaviors are set to direct all traffic to the lambda except for the specific assets route.
+
+:::warning
+
+Attaching the bucket policy based on the distribution's arn for an existing bucket should work, but it did not in practice. FYI if you are referencing an existing bucket, set the policy manually. The policy will look something like this: [bucket-policy](../reference/bucket-policy)
+
+:::
+
+```ts
+import * as cdk from "aws-cdk-lib";
+import { Construct } from "constructs";
+import { getProjectRoot } from "@bronifty/fs-utils";
+import * as s3 from "aws-cdk-lib/aws-s3";
+import * as cloudfront from "aws-cdk-lib/aws-cloudfront";
+import * as s3deploy from "aws-cdk-lib/aws-s3-deployment";
+import * as iam from "aws-cdk-lib/aws-iam";
+import { getDomainName } from "./utils";
+
+const codePath = `${getProjectRoot()}/../remix-lambda/build/client`;
+console.log(codePath);
+
+interface DynamicHostingStackProps extends cdk.StackProps {
+  functionUrl: cdk.aws_lambda.FunctionUrl;
+  certificateArn: string;
+}
+
+export class DynamicHostingStack extends cdk.Stack {
+  constructor(scope: Construct, id: string, props: DynamicHostingStackProps) {
+    super(scope, id, props);
+
+    const functionUrlDomainName = getDomainName(props.functionUrl.url);
+
+    const domainName = "bronifty.xyz";
+    const ssrSubdomain = `ssr.${domainName}`;
+    const bucket = s3.Bucket.fromBucketArn(
+      this,
+      "ExistingBucket",
+      "arn:aws:s3:::www.bronifty.xyz"
+    ); // note: using an existing bucket will require a manual step to update the bucket policy to allow cloudfront to access the bucket
+    // TODO: refactor to use a new bucket with custom name
+
+    // Look up the hosted zone
+    const zone = cdk.aws_route53.HostedZone.fromLookup(this, "Zone", {
+      domainName,
+    });
+
+    // Create Origin Access Control
+    const oac = new cloudfront.CfnOriginAccessControl(this, "oac-for-assets", {
+      originAccessControlConfig: {
+        name: "OAC for /assets/*",
+        originAccessControlOriginType: "s3",
+        signingBehavior: "always",
+        signingProtocol: "sigv4",
+      },
+    });
+
+    // Create CloudFront distribution using CfnDistribution
+    const distribution = new cloudfront.CfnDistribution(this, "Distribution", {
+      distributionConfig: {
+        enabled: true,
+        // defaultRootObject: "index.html",
+        defaultCacheBehavior: {
+          targetOriginId: "LambdaOrigin", // Change this to target the Lambda origin
+          viewerProtocolPolicy: "redirect-to-https",
+          allowedMethods: [
+            "GET",
+            "HEAD",
+            "OPTIONS",
+            "PUT",
+            "PATCH",
+            "POST",
+            "DELETE",
+          ], // Allow all methods
+          cachedMethods: ["GET", "HEAD"],
+          forwardedValues: {
+            queryString: true, // Forward query strings to Lambda
+            headers: [
+              "Origin",
+              "Access-Control-Request-Headers",
+              "Access-Control-Request-Method",
+            ], // Forward necessary headers
+          },
+        },
+        origins: [
+          {
+            id: "S3Origin",
+            domainName: bucket.bucketRegionalDomainName,
+            originAccessControlId: oac.getAtt("Id").toString(),
+            s3OriginConfig: {},
+          },
+          {
+            id: "LambdaOrigin",
+            domainName: functionUrlDomainName,
+            customOriginConfig: {
+              httpPort: 80,
+              httpsPort: 443,
+              originProtocolPolicy: "https-only",
+            },
+          },
+        ],
+        cacheBehaviors: [
+          {
+            pathPattern: "/assets/*", // Adjust this pattern to match your static asset paths
+            targetOriginId: "S3Origin",
+            viewerProtocolPolicy: "redirect-to-https",
+            allowedMethods: ["GET", "HEAD", "OPTIONS"],
+            cachedMethods: ["GET", "HEAD"],
+            forwardedValues: {
+              queryString: false,
+            },
+          },
+        ],
+        viewerCertificate: {
+          acmCertificateArn: props.certificateArn,
+          sslSupportMethod: "sni-only",
+          minimumProtocolVersion: "TLSv1.2_2021",
+        },
+        aliases: [ssrSubdomain],
+        customErrorResponses: [
+          {
+            errorCode: 403,
+            responsePagePath: "/index.html",
+            responseCode: 200,
+            errorCachingMinTtl: 300,
+          },
+          {
+            errorCode: 404,
+            responsePagePath: "/index.html",
+            responseCode: 200,
+            errorCachingMinTtl: 300,
+          },
+        ],
+      },
+    });
+
+    // Create an IDistribution interface from the CfnDistribution
+    const distributionInterface =
+      cloudfront.Distribution.fromDistributionAttributes(
+        this,
+        "ImportedDistributionInterface",
+        {
+          domainName: distribution.attrDomainName,
+          distributionId: distribution.ref,
+        }
+      );
+
+    // Create Route 53 record for the SSR subdomain
+    new cdk.aws_route53.ARecord(this, "SSRAliasRecord", {
+      zone,
+      recordName: ssrSubdomain,
+      target: cdk.aws_route53.RecordTarget.fromAlias(
+        new cdk.aws_route53_targets.CloudFrontTarget(distributionInterface)
+      ),
+    });
+    // // Create Route 53 records
+    // new cdk.aws_route53.ARecord(this, "AliasRecord", {
+    //   zone,
+    //   recordName: domainName,
+    //   target: cdk.aws_route53.RecordTarget.fromAlias(
+    //     new cdk.aws_route53_targets.CloudFrontTarget(distributionInterface)
+    //   ),
+    // });
+
+    // new cdk.aws_route53.ARecord(this, "WWWAliasRecord", {
+    //   zone,
+    //   recordName: www,
+    //   target: cdk.aws_route53.RecordTarget.fromAlias(
+    //     new cdk.aws_route53_targets.CloudFrontTarget(distributionInterface)
+    //   ),
+    // });
+
+    // Update bucket policy
+    bucket.addToResourcePolicy(
+      new iam.PolicyStatement({
+        actions: ["s3:GetObject"],
+        resources: [bucket.arnForObjects("*")],
+        principals: [new iam.ServicePrincipal("cloudfront.amazonaws.com")],
+        conditions: {
+          StringEquals: {
+            "AWS:SourceArn": `arn:aws:cloudfront::${this.account}:distribution/${distribution.ref}`,
+          },
+        },
+      })
+    );
+
+    // Deploy website content
+    new s3deploy.BucketDeployment(this, "DeployWebsite", {
+      sources: [s3deploy.Source.asset(codePath)],
+      destinationBucket: bucket,
+      distribution: cloudfront.Distribution.fromDistributionAttributes(
+        this,
+        "ImportedDistribution",
+        {
+          domainName: distribution.attrDomainName,
+          distributionId: distribution.ref,
+        }
+      ),
+      distributionPaths: ["/*"],
+    });
+
+    new cdk.CfnOutput(this, "SSRSubdomainUrl", {
+      value: `https://${ssrSubdomain}`,
+      description: "SSR Subdomain URL",
+    });
+    new cdk.CfnOutput(this, "DistributionUrl", {
+      value: `https://${distribution.attrDomainName}`,
+      description: "CloudFront Distribution URL",
+    });
+    new cdk.CfnOutput(this, "BucketUrl", {
+      value: `https://${bucket.bucketRegionalDomainName}`,
+      description: "S3 Bucket URL",
+    });
+  }
+}
 ```

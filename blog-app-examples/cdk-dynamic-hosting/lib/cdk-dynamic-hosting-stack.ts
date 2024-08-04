@@ -23,11 +23,23 @@ export class DynamicHostingStack extends cdk.Stack {
 
     const domainName = "bronifty.xyz";
     const ssrSubdomain = `ssr.${domainName}`;
-    const bucket = s3.Bucket.fromBucketArn(
-      this,
-      "ExistingBucket",
-      "arn:aws:s3:::www.bronifty.xyz"
-    ); // note: using an existing bucket will require a manual step to update the bucket policy to allow cloudfront to access the bucket
+
+    // Create a new S3 bucket
+    const bucket = new s3.Bucket(this, "SSRBucket", {
+      bucketName: ssrSubdomain,
+      // websiteIndexDocument: "index.html",
+      // websiteErrorDocument: "index.html",
+      publicReadAccess: false,
+      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+      autoDeleteObjects: true,
+    });
+
+    // const bucket = s3.Bucket.fromBucketArn(
+    //   this,
+    //   "ExistingBucket",
+    //   "arn:aws:s3:::www.bronifty.xyz"
+    // ); // note: using an existing bucket will require a manual step to update the bucket policy to allow cloudfront to access the bucket
     // TODO: refactor to use a new bucket with custom name
 
     // Look up the hosted zone
