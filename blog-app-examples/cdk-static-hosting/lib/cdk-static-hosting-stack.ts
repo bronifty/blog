@@ -14,6 +14,8 @@ export class CdkStaticHostingStack extends cdk.Stack {
 
     const domainName = "bronifty.xyz";
     const www = `www.${domainName}`;
+    const wildcard = `*.${domainName}`;
+
     const bucket = s3.Bucket.fromBucketArn(
       this,
       "ExistingBucket",
@@ -31,7 +33,7 @@ export class CdkStaticHostingStack extends cdk.Stack {
       "Certificate",
       {
         domainName: domainName,
-        subjectAlternativeNames: [www],
+        subjectAlternativeNames: [www, wildcard],
         validation:
           cdk.aws_certificatemanager.CertificateValidation.fromDns(zone),
       }
@@ -156,6 +158,11 @@ export class CdkStaticHostingStack extends cdk.Stack {
     new cdk.CfnOutput(this, "WWWCustomDomainUrl", {
       value: `https://${www}`,
       description: "WWW Custom Domain URL",
+    });
+    // Add a new CfnOutput for the wildcard subdomain
+    new cdk.CfnOutput(this, "WildcardSubdomainCertificate", {
+      value: certificate.certificateArn,
+      description: "Wildcard Subdomain Certificate ARN",
     });
     new cdk.CfnOutput(this, "DistributionUrl", {
       value: `https://${distribution.attrDomainName}`,
