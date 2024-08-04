@@ -1,0 +1,10 @@
+{
+  "hosted-zone:account=851725517932:domainName=nathanjmorton.xyz:region=us-east-1": {
+    "Id": "/hostedzone/Z10474593P5WUJ1A2Q05K",
+    "Name": "nathanjmorton.xyz."
+  },
+  "hosted-zone:account=851725517932:domainName=bronifty.xyz:region=us-east-1": {
+    "Id": "/hostedzone/Z0289947RTHC2KY39SGI",
+    "Name": "bronifty.xyz."
+  }
+}
