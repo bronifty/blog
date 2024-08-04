@@ -5,8 +5,6 @@ import { DynamicHostingStack } from "../lib/cdk-dynamic-hosting-stack";
 import { LambdaStack } from "../lib/lambda-stack";
 
 // if your github actions workflow does not set these env vars or you don't have them preset somewhere in a file perhaps, then just hardcode them here.
-process.env.AWS_ACCOUNT_ID = "851725517932";
-process.env.AWS_REGION = "us-east-1";
 process.env.CERTIFICATE_ARN =
   "arn:aws:acm:us-east-1:851725517932:certificate/f5164cd1-7532-42ba-b194-ad681a98c7f4";
 
