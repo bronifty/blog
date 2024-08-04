@@ -4,15 +4,15 @@
   "sideEffects": false,
   "type": "module",
   "scripts": {
-    "clean": "rm -rf build lambda.cjs lambda.zip",
-    "build": "pnpm clean && remix vite:build && node esbuild.mjs",
     "dev": "remix vite:dev",
     "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
     "start": "remix-serve ./build/server/index.js",
     "typecheck": "tsc",
     "build:server": "node esbuild.mjs",
-    "test": "pnpm build && node ./test/local.js",
-    "zip": "zip -r lambda.zip lambda.cjs build"
+    "clean": "rm -rf build lambda.cjs lambda.zip",
+    "build": "npm clean && remix vite:build && node esbuild.mjs",
+    "zip": "zip -r lambda.zip lambda.cjs build",
+    "test": "npm build && node ./test/local.js"
   },
   "dependencies": {
     "@remix-run/express": "^2.10.3",
