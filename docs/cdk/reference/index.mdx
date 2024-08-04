@@ -1,0 +1,18 @@
+# CDK
+
+## Commands
+
+Since I don't globally install anything (unless it's necessary), I'll prefix each of these calls with `npx` or `pnpm dlx`.
+
+:::tip
+`pnpm dlx cdk` means download and execute the `cdk` package.
+:::
+
+```sh
+cdk init app --language typescript
+cdk bootstrap
+cdk synth
+cdk diff
+cdk deploy --require-approval never
+cdk destroy
+```
