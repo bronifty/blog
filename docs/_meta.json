@@ -6,7 +6,7 @@
   },
   {
     "text": "cdk",
-    "link": "/cdk/static-hosting/s3-bucket-website",
+    "link": "/cdk/static-hosting/cdk-stack",
     "activeMatch": "^/cdk/"
   }
 ]
