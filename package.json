@@ -6,7 +6,8 @@
     "clean": "rm -rf doc_build",
     "dev": "rspress dev",
     "build": "pnpm clean && rspress build",
-    "preview": "rspress preview"
+    "preview": "rspress preview",
+    "cdk": "cd ./blog-app-examples/cdk-static-hosting && cdk"
   },
   "dependencies": {
     "rspress": "^1.26.1"

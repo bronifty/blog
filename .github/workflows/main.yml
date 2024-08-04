@@ -17,27 +17,40 @@ jobs:
     steps:
       - name: Git clone the repository
         uses: actions/checkout@v3
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+          cache: "pnpm"
+
       - name: configure aws credentials
         uses: aws-actions/configure-aws-credentials@v1.7.0
         with:
-          role-to-assume: arn:aws:iam::851725517932:role/AdministratorAccess #change to reflect your IAM role’s ARN
+          role-to-assume: arn:aws:iam::851725517932:role/AdministratorAccess
           role-session-name: GitHub_to_AWS_via_FederatedOIDC
           aws-region: ${{ env.AWS_REGION }}
-      # Hello from AWS: WhoAmI
+
       - name: Sts GetCallerIdentity
-        run: |
-          aws sts get-caller-identity
+        run: aws sts get-caller-identity
 
-      # Install AWS CDK CLI
       - name: Install AWS CDK CLI
-        run: npm install -g aws-cdk
+        run: pnpm add -g aws-cdk
 
-      # If your project uses npm, install your project dependencies
       - name: Install project dependencies
-        run: npm install
+        run: pnpm install
 
-      # Deploy with AWS CDK
+      - name: Build project
+        run: pnpm run build
+
       - name: CDK Deploy
-        run: cdk deploy --all --require-approval never
+        run: |
+          cd ./blog-app-examples/cdk-static-hosting
+          cdk deploy --all --require-approval never
         env:
-          AWS_REGION: ${{ env.AWS_REGION }} # Ensures AWS CDK uses the correct region
+          AWS_REGION: ${{ env.AWS_REGION }}
