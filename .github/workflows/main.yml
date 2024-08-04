@@ -7,10 +7,10 @@ on:
 env:
   AWS_REGION: "us-east-1" #Change to reflect your Region
 
-# Permission can be added at job level or workflow level
 permissions:
-  id-token: write # This is required for requesting the JWT
-  contents: read # This is required for actions/checkout
+  id-token: write
+  contents: read
+
 jobs:
   AssumeRoleAndCDKDeploy:
     runs-on: ubuntu-latest
@@ -18,18 +18,13 @@ jobs:
       - name: Git clone the repository
         uses: actions/checkout@v3
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 8
-
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: "18"
-          cache: "pnpm"
+          cache: "npm"
 
-      - name: configure aws credentials
+      - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1.7.0
         with:
           role-to-assume: arn:aws:iam::851725517932:role/AdministratorAccess
@@ -40,13 +35,17 @@ jobs:
         run: aws sts get-caller-identity
 
       - name: Install AWS CDK CLI
-        run: pnpm add -g aws-cdk
+        run: npm install -g aws-cdk
 
       - name: Install project dependencies
-        run: pnpm install
+        run: |
+          cd ./blog-app-examples/cdk-static-hosting
+          npm ci
 
       - name: Build project
-        run: pnpm run build
+        run: |
+          cd ./blog-app-examples/cdk-static-hosting
+          npm run build
 
       - name: CDK Deploy
         run: |
