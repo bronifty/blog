@@ -9,3 +9,4 @@ aws lambda add-permission \
 --function-name remix-ssr
 
 
+.
