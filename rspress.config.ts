@@ -11,10 +11,12 @@ export default defineConfig({
     dark: "/bronifty-icon.jpg",
   },
   themeConfig: {
+    enableContentAnimation: true,
+    enableScrollToTop: true,
     socialLinks: [
       { icon: "github", mode: "link", content: "https://github.com/bronifty" },
       {
-        icon: "twitter",
+        icon: "X",
         mode: "link",
         content: "https://x.com/bronifty",
       },

@@ -24,23 +24,13 @@ export class DynamicHostingStack extends cdk.Stack {
     const domainName = "bronifty.xyz";
     const ssrSubdomain = `ssr.${domainName}`;
 
-    // Create a new S3 bucket
     const bucket = new s3.Bucket(this, "SSRBucket", {
       bucketName: ssrSubdomain,
-      // websiteIndexDocument: "index.html",
-      // websiteErrorDocument: "index.html",
       publicReadAccess: false,
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
     });
-
-    // const bucket = s3.Bucket.fromBucketArn(
-    //   this,
-    //   "ExistingBucket",
-    //   "arn:aws:s3:::www.bronifty.xyz"
-    // ); // note: using an existing bucket will require a manual step to update the bucket policy to allow cloudfront to access the bucket
-    // TODO: refactor to use a new bucket with custom name
 
     // Look up the hosted zone
     const zone = cdk.aws_route53.HostedZone.fromLookup(this, "Zone", {
@@ -63,7 +53,7 @@ export class DynamicHostingStack extends cdk.Stack {
         enabled: true,
         // defaultRootObject: "index.html",
         defaultCacheBehavior: {
-          targetOriginId: "LambdaOrigin", // Change this to target the Lambda origin
+          targetOriginId: "LambdaOrigin",
           viewerProtocolPolicy: "redirect-to-https",
           allowedMethods: [
             "GET",
@@ -103,7 +93,7 @@ export class DynamicHostingStack extends cdk.Stack {
         ],
         cacheBehaviors: [
           {
-            pathPattern: "/assets/*", // Adjust this pattern to match your static asset paths
+            pathPattern: "/assets/*",
             targetOriginId: "S3Origin",
             viewerProtocolPolicy: "redirect-to-https",
             allowedMethods: ["GET", "HEAD", "OPTIONS"],
@@ -155,22 +145,6 @@ export class DynamicHostingStack extends cdk.Stack {
         new cdk.aws_route53_targets.CloudFrontTarget(distributionInterface)
       ),
     });
-    // // Create Route 53 records
-    // new cdk.aws_route53.ARecord(this, "AliasRecord", {
-    //   zone,
-    //   recordName: domainName,
-    //   target: cdk.aws_route53.RecordTarget.fromAlias(
-    //     new cdk.aws_route53_targets.CloudFrontTarget(distributionInterface)
-    //   ),
-    // });
-
-    // new cdk.aws_route53.ARecord(this, "WWWAliasRecord", {
-    //   zone,
-    //   recordName: www,
-    //   target: cdk.aws_route53.RecordTarget.fromAlias(
-    //     new cdk.aws_route53_targets.CloudFrontTarget(distributionInterface)
-    //   ),
-    // });
 
     // Update bucket policy
     bucket.addToResourcePolicy(
