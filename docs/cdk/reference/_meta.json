@@ -1,1 +1,9 @@
-["commands", "cicd", "bucket-policy", "cdk.out", "tsconfig"]
+[
+  "commands",
+  "cicd",
+  "bucket-policy",
+  "cdk.out",
+  "tsconfig",
+  "best-practices",
+  "utility-functions"
+]

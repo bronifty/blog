@@ -1,0 +1,32 @@
+# CDK Best Practices
+
+## Bucket
+
+```ts
+// dynamically get suffix from stack
+const suffix = getSuffixFromStack(this);
+
+const deploymentBucket = new cdk.aws_s3.Bucket(this, "uiDeploymentBucket", {
+  bucketName: `some-bucket-${suffix}`,
+  publicReadAccess: false,
+  blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+  removalPolicy: cdk.RemovalPolicy.DESTROY,
+  autoDeleteObjects: true,
+});
+```
+
+## DynamoDB
+
+```ts
+// dynamically get suffix from stack
+const suffix = getSuffixFromStack(this);
+
+const table = new cdk.aws_dynamodb.Table(this, "notes", {
+  partitionKey: {
+    name: "noteId",
+    type: cdk.aws_dynamodb.AttributeType.STRING,
+  },
+  billingMode: cdk.aws_dynamodb.BillingMode.PAY_PER_REQUEST,
+  removalPolicy: cdk.RemovalPolicy.DESTROY,
+});
+```
