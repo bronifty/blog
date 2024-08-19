@@ -37,11 +37,6 @@ jobs:
       - name: Sts GetCallerIdentity
         run: aws sts get-caller-identity
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 8
-
       - name: Build Blog
         run: |
           npm install --frozen-lockfile
@@ -53,7 +48,7 @@ jobs:
       - name: install cdk services
         run: |
           cd ./cdk/src/services/vite-remix
-          pnpm install
+          npm install
 
       - name: Install cdk project dependencies
         run: |
