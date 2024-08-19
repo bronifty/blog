@@ -40,7 +40,7 @@ jobs:
       - name: Install AWS CDK CLI
         run: npm install -g aws-cdk
 
-        - name: Install pnpm
+      - name: Install pnpm
         uses: pnpm/action-setup@v2
         with:
           version: 8
