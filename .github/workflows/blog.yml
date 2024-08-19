@@ -40,16 +40,10 @@ jobs:
       - name: Install AWS CDK CLI
         run: npm install -g aws-cdk
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 8
-
-      - name: Install root project dependencies with pnpm
-        run: pnpm install --frozen-lockfile
-
-      - name: Build documentation with pnpm
-        run: pnpm run build # Adjust this command based on your actual build script
+      - name: Install root project dependencies
+        run: |
+          npm ci
+          npm run build
 
       - name: List contents of doc_build
         run: ls -R ./doc_build
