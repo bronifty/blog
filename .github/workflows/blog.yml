@@ -46,7 +46,7 @@ jobs:
           version: 8
 
       - name: Install root project dependencies with pnpm
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
       - name: Build documentation with pnpm
         run: pnpm run build # Adjust this command based on your actual build script
