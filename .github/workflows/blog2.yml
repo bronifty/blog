@@ -44,8 +44,8 @@ jobs:
 
       - name: Build Blog
         run: |
-          pnpm install --frozen-lockfile
-          pnpm build
+          npm install --frozen-lockfile
+          npm run build
 
       - name: List contents of doc_build
         run: ls -R ./doc_build
@@ -53,7 +53,7 @@ jobs:
       - name: Install cdk project dependencies
         run: |
           cd ./cdk
-          npm i
+          npm install --frozen-lockfile
           npm run build
           npx cdk deploy BlogStack --require-approval never
         env:
