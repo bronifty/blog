@@ -44,7 +44,7 @@ jobs:
 
       - name: Build Blog
         run: |
-          pnpm i
+          pnpm install --frozen-lockfile
           pnpm build
 
       - name: List contents of doc_build
