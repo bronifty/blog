@@ -139,7 +139,7 @@ export class RemixStack extends cdk.Stack {
     new cdk.aws_s3_deployment.BucketDeployment(this, "DeployWebsite", {
       sources: [
         cdk.aws_s3_deployment.Source.asset(
-          `${getProjectRoot()}/src/services/vite-remix/build/client`
+          `${getProjectRoot()}../services/vite-remix/build/client`
         ),
       ],
       destinationBucket: bucket,
