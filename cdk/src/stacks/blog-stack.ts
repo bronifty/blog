@@ -13,6 +13,8 @@ export class BlogStack extends cdk.Stack {
     super(scope, id, props);
 
     const testDomain = "blog.bronifty.xyz";
+    const apexDomain = "bronifty.xyz";
+    const wwwDomain = "www.bronifty.xyz";
 
     const bucket = new cdk.aws_s3.Bucket(this, "BlogBucket", {
       bucketName: `blog-assets-${getSuffixFromStack(this)}`,
@@ -62,7 +64,7 @@ export class BlogStack extends cdk.Stack {
             sslSupportMethod: "sni-only",
             minimumProtocolVersion: "TLSv1.2_2021",
           },
-          aliases: [testDomain],
+          aliases: [testDomain, apexDomain, wwwDomain],
           priceClass: cdk.aws_cloudfront.PriceClass.PRICE_CLASS_100,
           customErrorResponses: [
             {
