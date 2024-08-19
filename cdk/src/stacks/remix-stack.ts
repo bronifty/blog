@@ -17,7 +17,7 @@ export class RemixStack extends cdk.Stack {
       runtime: cdk.aws_lambda.Runtime.NODEJS_20_X,
       handler: "lambda.handler",
       code: cdk.aws_lambda.Code.fromAsset(
-        `${getProjectRoot()}/src/services/vite-remix/lambda.zip`
+        `${getProjectRoot()}/../services/vite-remix/lambda.zip`
       ), // requires the remix-lambda project to be built and zipped first
     });
 
@@ -139,7 +139,7 @@ export class RemixStack extends cdk.Stack {
     new cdk.aws_s3_deployment.BucketDeployment(this, "DeployWebsite", {
       sources: [
         cdk.aws_s3_deployment.Source.asset(
-          `${getProjectRoot()}../services/vite-remix/build/client`
+          `${getProjectRoot()}/../services/vite-remix/build/client`
         ),
       ],
       destinationBucket: bucket,

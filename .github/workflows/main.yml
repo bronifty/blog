@@ -48,7 +48,7 @@ jobs:
       - name: build cdk services
         run: |
           cd ./services/vite-remix
-          npm install
+          npm install --frozen-lockfile
           npm run build
           npm run zip
 
