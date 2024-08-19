@@ -37,27 +37,25 @@ jobs:
       - name: Sts GetCallerIdentity
         run: aws sts get-caller-identity
 
-      - name: Install AWS CDK CLI
-        run: npm install -g aws-cdk
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
 
-      - name: Install root project dependencies
+      - name: Build Blog
         run: |
-          npm ci
-          npm run build
+          pnpm i
+          pnpm build
 
       - name: List contents of doc_build
         run: ls -R ./doc_build
 
-      - name: Install CDK project dependencies
+      - name: Install cdk project dependencies
         run: |
           cd ./cdk
-          npm ci
+          npm i
           npm run build
-
-      - name: CDK Deploy
-        run: |
-          cd ./cdk
-          cdk deploy BlogStack --require-approval never
+          npx cdk deploy BlogStack --require-approval never
         env:
           AWS_REGION: ${{ env.AWS_REGION }}
           AWS_ACCOUNT_ID: ${{ env.AWS_ACCOUNT_ID }}
