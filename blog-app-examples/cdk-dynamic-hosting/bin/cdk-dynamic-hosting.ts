@@ -8,6 +8,11 @@ import { LambdaStack } from "../lib/lambda-stack";
 process.env.CERTIFICATE_ARN =
   "arn:aws:acm:us-east-1:851725517932:certificate/f5164cd1-7532-42ba-b194-ad681a98c7f4";
 
+function getCertificateArn(): string {
+  console.log(process.env.CERTIFICATE_ARN);
+  return process.env.CERTIFICATE_ARN || "";
+}
+
 // Function to get AWS account ID from environment variable
 function getAccountId(): string {
   console.log(process.env.AWS_ACCOUNT_ID);
@@ -18,11 +23,6 @@ function getAccountId(): string {
 function getRegion(): string {
   console.log(process.env.AWS_REGION);
   return process.env.AWS_REGION || "";
-}
-
-function getCertificateArn(): string {
-  console.log(process.env.CERTIFICATE_ARN);
-  return process.env.CERTIFICATE_ARN || "";
 }
 
 const app = new cdk.App();
