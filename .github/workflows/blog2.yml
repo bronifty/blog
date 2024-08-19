@@ -50,6 +50,11 @@ jobs:
       - name: List contents of doc_build
         run: ls -R ./doc_build
 
+      - name: install cdk services
+        run: |
+          cd ./cdk/src/services/vite-remix
+          pnpm install
+
       - name: Install cdk project dependencies
         run: |
           cd ./cdk
