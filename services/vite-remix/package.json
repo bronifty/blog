@@ -9,8 +9,8 @@
     "start": "remix-serve ./build/server/index.js",
     "typecheck": "tsc",
     "clean": "rm -rf build lambda.cjs lambda.zip",
-    "build": "pnpm clean && remix vite:build && node esbuild.mjs",
-    "test": "pnpm build && node ./test/local.js",
+    "build": "npm clean && remix vite:build && node esbuild.mjs",
+    "test": "npm build && node ./test/local.js",
     "zip": "zip -r lambda.zip lambda.cjs build"
   },
   "dependencies": {
