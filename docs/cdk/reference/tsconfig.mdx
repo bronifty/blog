@@ -11,13 +11,10 @@
     "esModuleInterop": true,
     "strict": true,
     "outDir": "./dist",
-    "rootDir": "./src",
-    "typeRoots": [
-      "./node_modules/@bronifty/fs-utils/dist/types",
-      "./node_modules/@types/node"
-    ]
+    "rootDir": "./src"
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules"],
+  "types": ["aws-lambda", "node", "@bronifty/fs-utils"]
 }
 ```
