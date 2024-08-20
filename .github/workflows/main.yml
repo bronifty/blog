@@ -52,7 +52,7 @@ jobs:
           npm run build
           npm run zip
 
-      - name: Install cdk project dependencies
+      - name: install build and deploy cdk
         run: |
           cd ./cdk
           npm install --frozen-lockfile
