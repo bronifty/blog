@@ -50,6 +50,7 @@ jobs:
           cd ./services/common
           make executable
           make install
+          make clean
           make build
           make bundle
           make zip
