@@ -57,6 +57,7 @@ jobs:
           cd ./cdk
           npm install --frozen-lockfile
           npm run build
+          npx cdk bootstrap aws://$AWS_ACCOUNT_ID/$AWS_REGION
           npx cdk deploy --all --require-approval never
         env:
           AWS_REGION: ${{ env.AWS_REGION }}
