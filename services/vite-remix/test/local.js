@@ -1,5 +1,5 @@
 //local.js
-import { handler, app } from "../lambda.js";
+import { handler, app } from "../lambda.cjs";
 import fs from "fs/promises";
 import path from "path";
 

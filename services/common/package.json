@@ -1,0 +1,22 @@
+{
+  "name": "common",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "echo \"build\""
+  },
+  "keywords": [],
+  "author": "bronifty",
+  "license": "ISC",
+  "dependencies": {
+    "@bronifty/fs-utils": "^0.0.13",
+    "@remix-run/express": "^2.11.2",
+    "express": "^4.19.2",
+    "serverless-http": "^3.2.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.23.1",
+    "tsx": "^4.17.0"
+  }
+}

@@ -45,12 +45,10 @@ jobs:
       - name: List contents of doc_build
         run: ls -R ./doc_build
 
-      - name: build cdk services
+      - name: Build and prepare services
         run: |
-          cd ./services/vite-remix
-          npm install --frozen-lockfile
-          npm run build
-          npm run zip
+          cd ./services/common
+          make all
 
       - name: install build and deploy cdk
         run: |
