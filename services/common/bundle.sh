@@ -18,7 +18,7 @@ for dir in "$PARENT_DIR"/*; do
             # Run the npm build script
             node esbuild.mjs
         else
-            echo "No build script found in $dir"
+            echo "esbuild.mjs not found in $dir"
         fi
         # Return to the original directory
         cd -

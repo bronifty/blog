@@ -25,17 +25,3 @@ for dir in "$PARENT_DIR"/*; do
     fi
 done
 
-
-#!/bin/bash
-
-# Zip common service
-echo "Zipping common service in $(pwd)"
-zip -r lambda.zip . -x "node_modules/*" "*.git*"
-
-# Zip react-router-7-contacts service
-cd ../react-router-7-contacts
-echo "Zipping react-router-7-contacts service in $(pwd)"
-zip -r lambda.zip . -x "node_modules/*" "*.git*"
-
-# Return to the original directory
-cd ../common
