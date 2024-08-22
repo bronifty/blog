@@ -3,7 +3,7 @@ import { BlogStack } from "./stacks/blog-stack";
 import { RemixStack } from "./stacks/remix-stack";
 
 process.env.CERTIFICATE_ARN =
-  "arn:aws:acm:us-east-1:533266994320:certificate/a58e900f-e881-4e2f-af32-3d9155fc672c";
+  "arn:aws:acm:us-east-1:533266994320:certificate/762bf6fe-5e4d-44bd-a67a-bc7bda41028a";
 process.env.AWS_ACCOUNT_ID = "533266994320";
 process.env.AWS_REGION = "us-east-1";
 
