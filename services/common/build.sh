@@ -24,3 +24,12 @@ for dir in "$PARENT_DIR"/*; do
         cd -
     fi
 done
+
+# Build react-router-7-contacts service
+cd ../react-router-7-contacts
+echo "Building in $(pwd)"
+npm install --frozen-lockfile
+npm run build
+
+# Return to the original directory
+cd ../common
