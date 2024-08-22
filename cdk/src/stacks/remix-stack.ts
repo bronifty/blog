@@ -11,8 +11,8 @@ export class RemixStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: RemixStackProps) {
     super(scope, id, props);
 
-    const remixDomain = "remix2.bronifty.xyz";
-    const ssrDomain = "ssr2.bronifty.xyz";
+    const remix2Domain = "remix2.bronifty.xyz";
+    const ssr2Domain = "ssr2.bronifty.xyz";
 
     const lambda = new cdk.aws_lambda.Function(this, "remix-lambda", {
       runtime: cdk.aws_lambda.Runtime.NODEJS_20_X,
@@ -116,7 +116,7 @@ export class RemixStack extends cdk.Stack {
             sslSupportMethod: "sni-only",
             minimumProtocolVersion: "TLSv1.2_2021",
           },
-          aliases: [remixDomain, ssrDomain],
+          aliases: [remix2Domain, ssr2Domain],
           priceClass: cdk.aws_cloudfront.PriceClass.PRICE_CLASS_100,
           customErrorResponses: [
             {

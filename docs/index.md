@@ -16,8 +16,8 @@ hero:
     src: /bronifty-icon.jpg
     alt: bronifty Logo
 features:
-  - title: ssr.bronifty.xyz
+  - title: ssr2.bronifty.xyz
     details: serverless remix app hosted on aws
     icon: 🚀
-    link: https://ssr.bronifty.xyz
+    link: https://ssr2.bronifty.xyz
 ---
