@@ -48,12 +48,7 @@ jobs:
       - name: Build and prepare services
         run: |
           cd ./services/common
-          make executable
-          make install
-          make clean
-          make build
-          make bundle
-          make zip
+          make all
 
       - name: install build and deploy cdk
         run: |

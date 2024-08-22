@@ -20,4 +20,8 @@ features:
     details: serverless remix app hosted on aws
     icon: 🚀
     link: https://ssr.bronifty.org
+  - title: react-router-7-contacts.bronifty.org
+    details: serverless react-router-7-contacts app hosted on aws
+    icon: 🌈
+    link: https://react-router-7-contacts.bronifty.org
 ---
