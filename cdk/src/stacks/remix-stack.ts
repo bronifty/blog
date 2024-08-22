@@ -11,8 +11,8 @@ export class RemixStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: RemixStackProps) {
     super(scope, id, props);
 
-    const remixDomain = "remix.bronifty.xyz";
-    const ssrDomain = "ssr.bronifty.xyz";
+    const remixDomain = "remix2.bronifty.xyz";
+    const ssrDomain = "ssr2.bronifty.xyz";
 
     const lambda = new cdk.aws_lambda.Function(this, "remix-lambda", {
       runtime: cdk.aws_lambda.Runtime.NODEJS_20_X,

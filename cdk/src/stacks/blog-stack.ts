@@ -12,7 +12,7 @@ export class BlogStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: BlogStackProps) {
     super(scope, id, props);
 
-    const testDomain = "blog.bronifty.xyz";
+    const testDomain = "blog2.bronifty.xyz";
     const apexDomain = "bronifty.xyz";
     const wwwDomain = "www.bronifty.xyz";
 
@@ -64,7 +64,7 @@ export class BlogStack extends cdk.Stack {
             sslSupportMethod: "sni-only",
             minimumProtocolVersion: "TLSv1.2_2021",
           },
-          aliases: [testDomain, apexDomain, wwwDomain],
+          aliases: [],
           priceClass: cdk.aws_cloudfront.PriceClass.PRICE_CLASS_100,
           customErrorResponses: [
             {
