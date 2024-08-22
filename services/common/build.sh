@@ -25,11 +25,21 @@ for dir in "$PARENT_DIR"/*; do
     fi
 done
 
+#!/bin/bash
+
+# Build common service
+echo "Building common service in $(pwd)"
+npm run build
+
 # Build react-router-7-contacts service
 cd ../react-router-7-contacts
-echo "Building in $(pwd)"
+echo "Building react-router-7-contacts service in $(pwd)"
 npm install --frozen-lockfile
 npm run build
+
+# Create a lambda.zip file for react-router-7-contacts
+echo "Creating lambda.zip for react-router-7-contacts"
+zip -r lambda.zip . -x "node_modules/*" "*.git*"
 
 # Return to the original directory
 cd ../common
