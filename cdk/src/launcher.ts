@@ -3,8 +3,8 @@ import { BlogStack } from "./stacks/blog-stack";
 import { RemixStack } from "./stacks/remix-stack";
 
 process.env.CERTIFICATE_ARN =
-  "arn:aws:acm:us-east-1:851725517932:certificate/f5164cd1-7532-42ba-b194-ad681a98c7f4";
-process.env.AWS_ACCOUNT_ID = "851725517932";
+  "arn:aws:acm:us-east-1:533266994320:certificate/a58e900f-e881-4e2f-af32-3d9155fc672c";
+process.env.AWS_ACCOUNT_ID = "533266994320";
 process.env.AWS_REGION = "us-east-1";
 
 function getCertificateArn(): string {
