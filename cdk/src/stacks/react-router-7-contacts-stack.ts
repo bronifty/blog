@@ -1,6 +1,6 @@
 import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
-import { getProjectRoot } from "@bronifty/fs-utils";
+import * as FsUtils from "@bronifty/fs-utils";
 import { getDomainName, getSuffixFromStack } from "../utils";
 
 interface ReactRouter7ContactsStackProps extends cdk.StackProps {
@@ -16,14 +16,25 @@ export class ReactRouter7ContactsStack extends cdk.Stack {
     super(scope, id, props);
 
     const reactRouterDomain = "react-router-7-contacts.bronifty.org";
+    const projectRoot = `${FsUtils.getProjectRoot()}/src/services/react-router-7-contacts`;
 
-    const lambda = new cdk.aws_lambda.Function(this, "remix-lambda", {
-      runtime: cdk.aws_lambda.Runtime.NODEJS_20_X,
-      handler: "lambda.handler",
-      code: cdk.aws_lambda.Code.fromAsset(
-        `${getProjectRoot()}/../services/react-router-7-contacts/lambda.zip`
-      ), // requires the remix-lambda project to be built and zipped first
-    });
+    const lambda = new cdk.aws_lambda_nodejs.NodejsFunction(
+      this,
+      "remix-lambda",
+      {
+        runtime: cdk.aws_lambda.Runtime.NODEJS_LATEST,
+        handler: "handler",
+        entry: `${projectRoot}/lambda.ts`,
+      }
+    );
+
+    // const lambda = new cdk.aws_lambda.Function(this, "remix-lambda", {
+    //   runtime: cdk.aws_lambda.Runtime.NODEJS_20_X,
+    //   handler: "lambda.handler",
+    //   code: cdk.aws_lambda.Code.fromAsset(
+    //     `${getProjectRoot()}/../services/react-router-7-contacts/lambda.zip`
+    //   ), // requires the remix-lambda project to be built and zipped first
+    // });
 
     // Create a Function URL for the Lambda
     const functionUrl = lambda.addFunctionUrl({
@@ -148,9 +159,7 @@ export class ReactRouter7ContactsStack extends cdk.Stack {
     // Deploy website content
     new cdk.aws_s3_deployment.BucketDeployment(this, "DeployWebsite", {
       sources: [
-        cdk.aws_s3_deployment.Source.asset(
-          `${getProjectRoot()}/../services/react-router-7-contacts/build/client`
-        ),
+        cdk.aws_s3_deployment.Source.asset(`${projectRoot}/build/client`),
       ],
       destinationBucket: bucket,
       distribution: cdk.aws_cloudfront.Distribution.fromDistributionAttributes(
