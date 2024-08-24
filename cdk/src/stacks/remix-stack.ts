@@ -13,6 +13,7 @@ export class RemixStack extends cdk.Stack {
 
     const ssrDomain = "ssr.bronifty.org";
     const projectRoot = `${FsUtils.getProjectRoot()}/../services/vite-remix`;
+
     const lambda = new cdk.aws_lambda_nodejs.NodejsFunction(
       this,
       "remix-lambda",
@@ -22,14 +23,6 @@ export class RemixStack extends cdk.Stack {
         entry: `${projectRoot}/lambda.ts`,
       }
     );
-
-    // const lambda = new cdk.aws_lambda.Function(this, "remix-lambda", {
-    //   runtime: cdk.aws_lambda.Runtime.NODEJS_20_X,
-    //   handler: "lambda.handler",
-    //   code: cdk.aws_lambda.Code.fromAsset(
-    //     `${getProjectRoot()}/../services/vite-remix/lambda.zip`
-    //   ), // requires the remix-lambda project to be built and zipped first
-    // });
 
     // Create a Function URL for the Lambda
     const functionUrl = lambda.addFunctionUrl({

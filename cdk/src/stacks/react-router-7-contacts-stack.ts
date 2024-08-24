@@ -28,14 +28,6 @@ export class ReactRouter7ContactsStack extends cdk.Stack {
       }
     );
 
-    // const lambda = new cdk.aws_lambda.Function(this, "remix-lambda", {
-    //   runtime: cdk.aws_lambda.Runtime.NODEJS_20_X,
-    //   handler: "lambda.handler",
-    //   code: cdk.aws_lambda.Code.fromAsset(
-    //     `${getProjectRoot()}/../services/react-router-7-contacts/lambda.zip`
-    //   ), // requires the remix-lambda project to be built and zipped first
-    // });
-
     // Create a Function URL for the Lambda
     const functionUrl = lambda.addFunctionUrl({
       authType: cdk.aws_lambda.FunctionUrlAuthType.NONE,
