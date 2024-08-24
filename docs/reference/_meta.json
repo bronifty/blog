@@ -1,11 +1,6 @@
 [
   {
     "type": "dir",
-    "name": "web-hosting",
-    "label": "Web Hosting"
-  },
-  {
-    "type": "dir",
     "name": "cdk",
     "label": "CDK"
   },

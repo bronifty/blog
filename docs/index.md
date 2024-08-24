@@ -10,8 +10,8 @@ hero:
       text: scenarios
       link: /scenarios/static-hosting/s3-bucket-website
     - theme: alt
-      text: cdk
-      link: /cdk/dynamic-hosting/cdk-stack
+      text: reference
+      link: /reference/t-shoot/debugging
   image:
     src: /bronifty-icon.jpg
     alt: bronifty Logo
