@@ -16,7 +16,7 @@ export class ReactRouter7ContactsStack extends cdk.Stack {
     super(scope, id, props);
 
     const reactRouterDomain = "react-router-7-contacts.bronifty.org";
-    const projectRoot = `${FsUtils.getProjectRoot()}/src/services/react-router-7-contacts`;
+    const projectRoot = `${FsUtils.getProjectRoot()}/../services/react-router-7-contacts`;
 
     const lambda = new cdk.aws_lambda_nodejs.NodejsFunction(
       this,

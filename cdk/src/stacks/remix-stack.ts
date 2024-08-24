@@ -12,7 +12,7 @@ export class RemixStack extends cdk.Stack {
     super(scope, id, props);
 
     const ssrDomain = "ssr.bronifty.org";
-    const projectRoot = `${FsUtils.getProjectRoot()}/src/services/vite-remix`;
+    const projectRoot = `${FsUtils.getProjectRoot()}/../services/vite-remix`;
     const lambda = new cdk.aws_lambda_nodejs.NodejsFunction(
       this,
       "remix-lambda",

@@ -47,7 +47,7 @@ jobs:
 
       - name: Build and prepare services
         run: |
-          cd ./cdk/src/services/common
+          cd ./services/common
           make install
           make clean
           make build
