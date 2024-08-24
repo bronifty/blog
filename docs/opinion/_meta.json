@@ -1,0 +1,12 @@
+[
+  {
+    "type": "dir",
+    "name": "codes",
+    "label": "Codes"
+  },
+  {
+    "type": "dir",
+    "name": "life",
+    "label": "Life"
+  }
+]

@@ -8,5 +8,10 @@
     "text": "reference",
     "link": "/reference/t-shoot/debugging",
     "activeMatch": "^/reference/"
+  },
+  {
+    "text": "opinion",
+    "link": "/opinion/codes/abstraction",
+    "activeMatch": "^/opinion/"
   }
 ]

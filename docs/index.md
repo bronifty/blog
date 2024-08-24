@@ -12,6 +12,9 @@ hero:
     - theme: alt
       text: reference
       link: /reference/t-shoot/debugging
+    - theme: alt
+      text: opinion
+      link: /opinion/codes/abstraction
   image:
     src: /bronifty-icon.jpg
     alt: bronifty Logo
