@@ -5,8 +5,8 @@
     "activeMatch": "^/scenarios/"
   },
   {
-    "text": "cdk",
-    "link": "/cdk/static-hosting/cdk-stack",
-    "activeMatch": "^/cdk/"
+    "text": "reference",
+    "link": "/reference/t-shoot/debugging",
+    "activeMatch": "^/reference/"
   }
 ]

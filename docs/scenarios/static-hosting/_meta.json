@@ -1,1 +1,1 @@
-["s3-bucket-website"]
+["s3-bucket-website", "s3-bucket-website-cdk-stack"]
