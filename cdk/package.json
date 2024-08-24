@@ -15,6 +15,7 @@
     "@bronifty/fs-utils": "^0.0.13",
     "@remix-run/express": "^2.11.2",
     "@types/aws-lambda": "^8.10.143",
+    "@types/express": "^4.17.21",
     "@types/node": "^18.15.10",
     "aws-cdk": "^2.152.0",
     "aws-cdk-lib": "^2.152.0",
