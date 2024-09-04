@@ -1,66 +1,67 @@
-# Fundamentals of Software Architecture: Modularity
+# [Fundamentals of Software Architecture - ch 3: Modularity](https://fundamentalsofsoftwarearchitecture.com/)
 
-[fundamentals of software architecture](https://fundamentalsofsoftwarearchitecture.com/)
+:::tip{title="TL;DR:"}
+💡 Tip for Coupling: Keep things that change together in the same module(s)
 
-### cohesion, coupling
+:::
 
-#### cohesion
+## Cohesion and Coupling
 
-- definition: to what extent parts of a module should be contained together (how related the parts are in a module); attempting to divide a cohesive module would result in increased coupling
+Cohesion:
 
-##### range of cohesion:
+- definition: to what extent parts of a module should be contained together (how related the parts are in a module); attempting to divide a cohesive module would result in increased coupling.
 
-    1 functional: module contains everything and nothing but what it needs to function
-    2 sequential: modules interact where one outputs data that becomes input to another
-    3 communication: modules participate in a comms chain where to contribute to some output (eg add db record and send email update about it)
-    4 procedural: modules execute in a particular order
-    5 temporal: modules are related based on timing dependencies (eg docker compose web app depends on db)
-    6 logical: modules data are related logically but not functionally (eg util package for operating on a data type; they all logically work on the same thing, but are otherwise unrelated)
-    7 coincidental: parts in module only relate in that they exist in the same file
+### Range of Cohesion:
 
-there are four measurements of architecture:
-1 LCOM
+1. functional: module contains everything and nothing but what it needs to function
+2. sequential: modules interact where one outputs data that becomes input to another
+3. communication: modules participate in a comms chain where to contribute to some output (eg add db record and send email update about it)
+4. procedural: modules execute in a particular order
+5. temporal: modules are related based on timing dependencies (eg docker compose web app depends on db)
+6. logical: modules data are related logically but not functionally (eg util package for operating on a data type; they all logically work on the same thing, but are otherwise unrelated)
+7. coincidental: parts in module only relate in that they exist in the same file
 
-- LCOM measures the extent to which methods of a class share instance variables
-  2 abstractness
-- abstractness is a ratio of abstract methods to the total number of abstractions + implementations
-  3 instability
-- instability is a measure of outward coupling
-  4 distance from the main sequence
-- distance from the main sequence is an X Y axis measuring abstraction and coupling with abstraction on the Y axis and coupling on the X axis; in the top right hand corner, you have pure abstraction plus coupling in the bottom left-hand corner you have zero abstraction zero coupling
+### Measurements of Architecture:
 
-> Cyclomatic Complexity
->
-> - cycle refers to graph of control flow in a program
+1. LCOM measures the extent to which methods of a class share instance variables
+2. Abstractness is a ratio of abstract methods to the total number of abstractions + implementations
+3. Instability is a measure of outward coupling
+4. Distance From the Main Sequence is an X Y axis measuring abstraction and coupling with abstraction on the Y axis and coupling on the X axis; in the top right hand corner, you have pure abstraction plus coupling in the bottom left-hand corner you have zero abstraction zero coupling
 
-    - more paths through the code base means harder to understand
-    - essential v accidental
-    - governance and fitness functions (to test the above)
+### Cyclomatic Complexity
 
-### Static Coupling
+- definition: cycle refers to graph of control flow in a program
+  - more paths through the code base means harder to understand
+  - essential v accidental
+  - governance and fitness functions (to test the above)
 
-- range of coupling (from best to worst coupling)
-- name
-  - update all variables/methods with the same name - easy to change
-- type
-  - update all types of methods/variables
-- meaning
-  - hardcoded numbers rather than constants (eg true is 1 and false is 0)
-- position
-  - function arg position
-- algorithm
-  - security hash that must run on both server and client to produce identical results to authenticate the caller
+## Static Coupling
 
-Dynamic Coupling
+### Range of Coupling (from best to worst coupling)
 
-- execution
-  - order of execution (eg code that sends an email needs to have subject line set first)
-- timing
-  - timing of execution (eg race condition between 2 competing threads)
-- values
-  - several values relate and must change together (eg distributed systems transactions; multiple databases must be updated together or not at all)
-- identity
-  - a distributed queue maintains the identity between writer and reader (reader is programmed to read from a specific named service with a specific protocol/message format)
+1. name
+   - example: update all variables/methods with the same name - easy to change
+2. type
+   - example: update all types of methods/variables
+3. meaning
+   - example: hardcoded numbers rather than constants (eg true is 1 and false is 0)
+4. position
+   - example: function arg position
+5. algorithm
+   - example: security hash that must run on both server and client to produce identical results to authenticate the caller
+
+## Dynamic Coupling
+
+### Range of Coupling (from best to worst coupling)
+
+1. execution
+   - example: order of execution (eg code that sends an email needs to have subject line set first)
+2. timing
+   - example: timing of execution (eg race condition between 2 competing threads)
+3. values
+   - example: several values relate and must change together (eg distributed systems transactions; multiple databases must be updated together or not at all)
+4. identity
+   - example: a distributed queue maintains the identity between writer and reader (reader is programmed to read from a specific named service with a specific protocol/message format)
 
 ---
 
@@ -91,6 +92,4 @@ In summary, using a messaging service with the publish/subscribe model provides 
 
 ---
 
-Tips for Coupling: Keep things that change together in the same module(s)
-
-Note: deriving components from domains in chapter 8
+📓 Note: deriving components from domains in chapter 8
