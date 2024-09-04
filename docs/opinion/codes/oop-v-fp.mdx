@@ -1,0 +1,19 @@
+# OOP v FP
+
+## Chat with AI about reusing and extending Web APIs
+
+Me:
+
+> would it be accurate to state that fp is good for logic that is flat and oop is more hierarchical? for instance, working with the Web API, such as extending the File API, it makes more sense to subclass that and get its methods for free than rewrite it using an interface as would be required with fp, correct?
+
+ChatGPT:
+
+> Yes, your statement captures a key difference between functional programming (FP) and object-oriented programming (OOP).
+
+OOP is well-suited for hierarchical and complex systems where you want to model entities with attributes and behaviors. In OOP, subclassing and inheritance allow you to extend existing functionality by creating specialized versions of objects. For example, extending the File API by subclassing allows you to reuse and extend its methods without duplicating code. This hierarchical structure aligns with the way OOP organizes code around objects and their interactions.
+
+FP, on the other hand, tends to favor immutability, stateless functions, and composability over inheritance and object hierarchies. It's more common in FP to define logic as a set of pure functions that operate on data rather than encapsulating both data and behavior in objects. This approach is "flatter" because it doesn't rely on a deep hierarchy of classes and inheritance, but rather on composing small, reusable functions.
+
+When dealing with something like the Web API, where extending existing functionality (like the File API) is common, OOP's hierarchical nature makes it easier and more natural to subclass and inherit behavior. In contrast, doing the same in FP would require you to redefine behavior through composition, often using interfaces or higher-order functions, which can be less intuitive when dealing with something inherently hierarchical.
+
+So yes, OOP is typically more hierarchical and is a better fit for scenarios where you want to extend and reuse existing, complex structures. FP is more suited to scenarios where you want to keep logic flat, modular, and composed of small, reusable functions.
