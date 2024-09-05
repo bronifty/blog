@@ -1,0 +1,28 @@
+# SQLite WASM
+
+[docs link](https://sqlite.org/wasm/doc/trunk/index.md)
+
+[current experiment repo](https://github.com/bronifty/comlink/tree/bronifty/docs/examples/sqlite-wasm-3460100)
+
+## Notes
+
+- sqlite wasm works best in its own process not blocking the main thread (in a worker) utilizing the built-in origin private file system (a read write file system that doesn't require uploading and downloading physical files vis-a-vis browser and device)
+
+  - a couple headers are required to access opfs and with it sharedArrayBuffer, which, incidentally, is also what ffmpeg wasm requires.
+    - express serves those headers as well as vite with a config; there is an examples folder in the experimental repo (on bronifty branch) with the sqlite-wasm-3460100 folder, which is a direct download of the distribution off the sqlite website that has this setup. it is probably the most comprehensive guide. there are also other examples in the 'docs' folder as well as in the 'examples' folder.
+  - worker thread comms vis-a-vis main thread is handled efficaciously via comlink by our friends at google. that's what the experimental repo is based on.
+
+  ## TODO
+
+  - @bronifty/marcs-observable and later checkout built-in browser observable usage with the sqlite-wasm
+  - @duckdb-wasm (not currently working for me!)
+
+## Resources
+
+- items im juggling with regard to sqlite-wasm are:
+
+1. sqlite-wasm api
+2. comlink api for workers
+3. workers api (for reference, mdn has great dom-examples repo)
+4. observables apis (marc's and native browser)
+5. duckdb-wasm api

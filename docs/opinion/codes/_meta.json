@@ -3,5 +3,6 @@
   "fundamentals-ch3",
   "oop-v-fp",
   "local-first-analytics",
-  "react-router"
+  "react-router",
+  "sqlite-wasm"
 ]
