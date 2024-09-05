@@ -1,0 +1,31 @@
+# React Router
+
+## Conversation with ChatGPT
+
+:::info{title="Q:"}
+is react-router a wrapper over browser history push and pop state array?
+:::
+
+---
+
+:::danger{title="A:"}
+Yes, React Router is essentially a wrapper around the browser's history API, which includes methods like pushState and popState. Here's a brief explanation:
+:::
+
+### Browser History API:
+
+This native browser API allows manipulation of the browser's session history through methods like pushState, replaceState, and the popstate event.
+
+- React Router: It provides a more React-friendly way to handle routing in single-page applications. It abstracts the complexity of working directly with the browser's history API.
+- Wrapper Functionality:
+  React Router uses the History API under the hood to manage navigation.
+  It provides components like `<BrowserRouter>`, `<Link>`, and hooks like `useNavigate()` that internally use pushState and popState.
+  When you use these components/hooks, React Router updates the URL and manages the history stack without full page reloads.
+
+### Additional Features:
+
+- Route matching
+- Nested routing
+  Route parameters
+  Programmatic navigation
+  In essence, React Router provides a more declarative and React-centric way to work with browser history, building upon the lower-level browser History API.
