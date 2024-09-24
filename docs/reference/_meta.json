@@ -8,5 +8,10 @@
     "type": "dir",
     "name": "t-shoot",
     "label": "T-Shoot"
+  },
+  {
+    "type": "dir",
+    "name": "vscode",
+    "label": "VS Code"
   }
 ]
