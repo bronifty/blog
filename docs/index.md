@@ -11,7 +11,7 @@ hero:
       link: /scenarios/static-hosting/s3-bucket-website
     - theme: alt
       text: reference
-      link: /reference/t-shoot/debugging
+      link: /reference/vscode/container
     - theme: alt
       text: opinion
       link: /opinion/codes/abstraction
