@@ -15,6 +15,9 @@ hero:
     - theme: alt
       text: opinion
       link: /opinion/codes/abstraction
+    - theme: alt
+      text: courses
+      link: /courses/cs50/c
   image:
     src: /bronifty-icon.jpg
     alt: bronifty Logo

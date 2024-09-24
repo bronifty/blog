@@ -13,5 +13,10 @@
     "text": "opinion",
     "link": "/opinion/codes/abstraction",
     "activeMatch": "^/opinion/"
+  },
+  {
+    "text": "courses",
+    "link": "/courses/cs50/c",
+    "activeMatch": "^/courses/"
   }
 ]
