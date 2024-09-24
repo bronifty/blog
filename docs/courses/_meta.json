@@ -13,5 +13,10 @@
     "type": "dir",
     "name": "cmu-db-olap",
     "label": "CMU OLAP Database"
+  },
+  {
+    "type": "dir",
+    "name": "mit-linear-algebra",
+    "label": "MIT Linear Algebra"
   }
 ]
