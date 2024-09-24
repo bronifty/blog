@@ -3,5 +3,15 @@
     "type": "dir",
     "name": "cs50",
     "label": "CS50"
+  },
+  {
+    "type": "dir",
+    "name": "cmu-db-oltp",
+    "label": "CMU OLTP Database"
+  },
+  {
+    "type": "dir",
+    "name": "cmu-db-olap",
+    "label": "CMU OLAP Database"
   }
 ]
