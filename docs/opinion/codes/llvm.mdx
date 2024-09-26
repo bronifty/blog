@@ -1,0 +1,73 @@
+# LLVM 
+
+- a conversation with open ai llm: 01 mini 
+
+Q: rust (via rustc) zig and c (via clang) hit llvm apis to produce ir, which llvm compiles to machine code. theoretically, any language compiling to llvm ir can link its binary with any other one. 
+
+llvm should compile not only to machine code but also wasm. it could be one of the modules.
+
+A: it does, but through the compiler interface of each language for instance with rust 
+
+## Rust in JS Node 
+
+```sh
+    rustup target add wasm32-unknown-unknown
+```
+
+```rust 
+    // lib.rs
+    #[no_mangle]
+    pub extern "C" fn add(a: i32, b: i32) -> i32 {
+        a + b
+    }
+```
+
+```sh 
+    rustc --target=wasm32-unknown-unknown --crate-type=cdylib lib.rs -o libadd.wasm
+```
+
+```js 
+    // index.js
+    const fs = require('fs');
+    const wasmBuffer = fs.readFileSync('./libadd.wasm');
+
+    WebAssembly.instantiate(wasmBuffer).then(wasmModule => {
+        const add = wasmModule.instance.exports.add;
+        console.log(add(5, 7)); // Output: 12
+    });
+```
+
+```sh 
+node index.js 
+```
+
+## Rust in C 
+
+- lib.rs 
+```rs 
+    #[no_mangle]
+    pub extern "C" fn rust_add(a: i32, b: i32) -> i32 {
+        a + b
+    }
+```
+
+- lib.c 
+
+```c 
+    // lib.c
+    int c_multiply(int a, int b) {
+        return a * b;
+    }
+```
+
+```sh 
+        rustc --target=wasm32-unknown-unknown --crate-type=cdylib lib.rs -o librust_add.wasm
+```
+
+```sh 
+        clang --target=wasm32-unknown-unknown -c lib.c -o lib.o
+        wasm-ld --no-entry --export-all lib.o -o libc_multiply.wasm
+```
+
+## Note 
+I bet the bytecode alliance has thought through this already 

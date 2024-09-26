@@ -4,5 +4,6 @@
   "oop-v-fp",
   "local-first-analytics",
   "react-router",
-  "sqlite-wasm"
+  "sqlite-wasm",
+  "llvm"
 ]
