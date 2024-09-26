@@ -1,0 +1,127 @@
+# LLDB Debugger Config for VS Code and Cursor
+
+:::info
+This will work for c and c++. You will need 2 ide extensions, one local (on your machine) and one remote (in the container).
+:::
+
+## How to use
+
+1. Have the Docker daemon running on your machine.
+2. Install the [Dev Containers Extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) locally.
+3. Jump into the repo root and hit `cmd + shift + p` and select `Reopen in Container`.
+4. Install the [CodeLLDB Extension](https://marketplace.visualstudio.com/items?itemName=vadimcn.vscode-lldb) in the container (if not done automatically by the devcontainer.json config file in the root of this repo).
+5. Open any c or c++ file and go to the debugger window `cmd + shift + d`.
+6. Click on the green play button to run the launch configuration `lldb`.
+
+## Notes
+
+C++ is a superset of C, just extern C functions in C++ files due to the way C++ handles overloading.
+
+```cpp
+    extern "C" {
+        void my_c_function();
+    }
+```
+
+:::warning
+You will be prompted to install the C++ extension in the container, but it is not strictly necessary with this setup.
+:::
+
+## Debugging with LLDB
+
+- lldb means llvm debugger; it hooks into the compiler architecture of llvm which is the next generation of compiler for c/c++
+- clang++ uses llvm and is the compiler for c/c++
+- a c/c++ file needs to be compiled with the -g flag to enable debugger metadata, which is then used by lldb
+- the launch config does just what a terminal session would do but dynamically for the active file in the ide and it runs the build task (clang++ with -g flag) beforehand to enable debugging in the window for active file.
+
+## Config
+
+- .vscode/launch.json
+
+```json
+// launch config
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "lldb",
+      "type": "lldb",
+      "request": "launch",
+      "program": "${fileDirname}/${fileBasenameNoExtension}",
+      "cwd": "${workspaceFolder}",
+      "preLaunchTask": "clang++"
+    }
+  ]
+}
+```
+
+- .vscode/tasks.json
+
+```json
+// build task
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "clang++",
+      "type": "shell",
+      "command": "/usr/bin/clang++",
+      "args": [
+        "-std=c++17",
+        "-g",
+        "${file}",
+        "-o",
+        "${fileDirname}/${fileBasenameNoExtension}"
+      ]
+    }
+  ]
+}
+```
+
+- Dockerfile
+
+```Dockerfile
+FROM ubuntu:22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    clang \
+    gdb \
+    cmake \
+    git \
+    curl \
+    vim \
+    lldb \
+    python3 \
+    python3-pip \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN pip3 install --upgrade pip
+
+RUN pip3 install matplotlib numpy
+
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 10
+
+CMD ["bash"]
+
+```
+
+-- .devcontainer/devcontainer.json
+
+```json
+// https://code.visualstudio.com/docs/devcontainers/containers#_create-a-devcontainerjson-file
+{
+  "name": "Existing Dockerfile",
+  "build": {
+    "context": "..",
+    "dockerfile": "../Dockerfile"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": ["vadimcn.vscode-lldb"]
+    }
+  }
+}
+```
