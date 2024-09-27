@@ -2,3 +2,114 @@
 
 [cpp primer](https://15445.courses.cs.cmu.edu/fall2024/project0/)
 
+## move constructors
+
+pass by reference is passing in an object from the caller to the callee as a function argument to do as the callee wishes, effectively temporarily handing control (without moving the memory location)
+
+returning a reference is handing control of the callee's own variable to the caller without moving the memory location 
+
+```cpp
+#include <iostream>
+#include <string>
+
+class Person {
+public:
+    Person(std::string name, int age) : name_(std::move(name)), age_(age) {}
+
+    // Function that takes a reference parameter
+    void incrementAge(int& yearsToAdd) {
+        age_ += yearsToAdd;
+        yearsToAdd = 0;  // This change will be visible to the caller
+    }
+
+    // Function that returns a reference
+    std::string& getName() {
+        return name_;  // Returns a reference to name_
+    }
+
+    void printDetails() const {
+        std::cout << "Name: " << name_ << ", Age: " << age_ << std::endl;
+    }
+
+private:
+    std::string name_;
+    int age_;
+};
+
+int main() {
+    Person person("Alice", 30);
+    
+    // Demonstrating pass by reference
+    int years = 5;
+    std::cout << "Before incrementAge: years = " << years << std::endl;
+    person.incrementAge(years);
+    std::cout << "After incrementAge: years = " << years << std::endl;
+    person.printDetails();
+
+    // Demonstrating returning a reference
+    std::cout << "\nBefore modifying name: ";
+    person.printDetails();
+    
+    person.getName() = "Alicia";  // Directly modifies the name_ member
+    
+    std::cout << "After modifying name: ";
+    person.printDetails();
+
+    return 0;
+}
+
+```
+
+## Reference v Pointer 
+
+a reference has the same memory address as the object it references; it is an alias.
+
+a pointer has a different memory address and its value is the memory address of another object of the same type
+
+```cpp 
+#include <iostream>
+#include <string>
+
+class Person {
+public:
+    Person(std::string name, int age) : name_(std::move(name)), age_(age) {}
+
+    Person& returnReference() {
+        std::cout << "Returning *this (reference)\n";
+        return *this;
+    }
+
+    Person* returnPointer() {
+        std::cout << "Returning this (pointer)\n";
+        return this;
+    }
+
+    void printDetails() const {
+        std::cout << "Name: " << name_ << ", Age: " << age_ << std::endl;
+    }
+
+private:
+    std::string name_;
+    int age_;
+};
+
+int main() {
+    Person alice("Alice", 30);
+
+    std::cout << "Original Alice:\n";
+    alice.printDetails();
+
+    std::cout << "\nUsing returnReference():\n";
+    Person& aliceRef = alice.returnReference();
+    std::cout << "Address of alice: " << &alice << std::endl;
+    std::cout << "Address of aliceRef: " << &aliceRef << std::endl;
+
+    std::cout << "\nUsing returnPointer():\n";
+    Person* alicePtr = alice.returnPointer();
+    std::cout << "Address of alice: " << &alice << std::endl;
+    std::cout << "Value of alicePtr (address it points to): " << alicePtr << std::endl;
+    std::cout << "Address of alicePtr itself: " << &alicePtr << std::endl;
+
+    return 0;
+}
+```
