@@ -1,21 +1,25 @@
-# LLDB Debugger Config for VS Code and Cursor
+# Debugging C/C++ with LLDB in VS Code with Docker and Kubernetes
 
 - [github repo](https://github.com/bronifty/c-debugging)
 
-:::info
-This will work for c and c++. You will need 2 ide extensions, one local (on your machine) and one remote (in the container).
-:::
+## Docker
 
-## How to use
+### Prerequisites
+
+1. [Dev Containers Extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
+2. [CodeLLDB Extension](https://marketplace.visualstudio.com/items?itemName=vadimcn.vscode-lldb)
+3. [Remote Explorer Extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.remote-explorer)
+
+### Setup
 
 1. Have the Docker daemon running on your machine.
-2. Install the [Dev Containers Extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) locally.
-3. Jump into the repo root and hit `cmd + shift + p` and select `Reopen in Container`.
-4. Install the [CodeLLDB Extension](https://marketplace.visualstudio.com/items?itemName=vadimcn.vscode-lldb) in the container (if not done automatically by the devcontainer.json config file in the root of this repo).
+2. Install Dev Containers extension locally
+3. Jump into repo root and hit `cmd + shift + p` and select `Reopen in Container`.
+4. Install CodeLLDB in remote VS Code instance inside container (if not done automatically by the devcontainer.json config file in the root of this repo).
 5. Open any c or c++ file and go to the debugger window `cmd + shift + d`.
 6. Click on the green play button to run the launch configuration `lldb`.
 
-## Notes
+### Notes
 
 C++ is a superset of C, just extern C functions in C++ files due to the way C++ handles overloading.
 
@@ -29,14 +33,14 @@ C++ is a superset of C, just extern C functions in C++ files due to the way C++ 
 You will be prompted to install the C++ extension in the container, but it is not strictly necessary with this setup.
 :::
 
-## Debugging with LLDB
+### Debugging with LLDB
 
 - lldb means llvm debugger; it hooks into the compiler architecture of llvm which is the next generation of compiler for c/c++
 - clang++ uses llvm and is the compiler for c/c++
 - a c/c++ file needs to be compiled with the -g flag to enable debugger metadata, which is then used by lldb
 - the launch config does just what a terminal session would do but dynamically for the active file in the ide and it runs the build task (clang++ with -g flag) beforehand to enable debugging in the window for active file.
 
-## Config
+### Config
 
 - .vscode/launch.json
 
@@ -126,4 +130,145 @@ CMD ["bash"]
     }
   }
 }
+```
+
+## Kubernetes
+
+### Prerequisites
+
+1. [Kubernetes Extension](https://marketplace.visualstudio.com/items?itemName=ms-kubernetes-tools.vscode-kubernetes-tools)
+2. [Kustomize](https://kustomize.io/)
+
+### Kustomize
+
+```sh
+chmod +x ./kustomize-deploy.sh
+./kustomize-deploy.sh
+```
+
+### Kubectl
+
+#### Commands Reference
+
+```sh
+kubectl apply -f <filename>.yaml
+kubectl exec -it <pod-name> -- /bin/sh
+kubectl describe pod <pod-name>
+kubectl get deployments
+kubectl scale deployment <deployment-name> --replicas=0
+kubectl get pods
+kubectl delete pod <pod-name>
+kubectl delete deployment <deployment-name>
+kubectl delete pods --all
+```
+
+#### Sourcing images from Github (GHCRIO Registry)
+
+Generate a Personal Access Token (PAT):
+Navigate to GitHub Settings.
+Click on "Generate new token".
+Select Scopes:
+For public repositories:
+read:packages
+write:packages
+delete:packages (optional)
+For private repositories:
+All the above scopes.
+Example Name: ghcr-access-token
+Click "Generate token" and copy the token. Note: You won't be able to see it again.
+Login to GHCR via Docker CLI:
+Open your terminal and execute:
+
+```sh
+echo <YOUR_PAT> | docker login ghcr.io -u <github-username> --password-stdin
+
+```
+
+#### Build Image from Dockerfile
+
+```sh
+docker build -t <image-name>:<tag> .
+```
+
+#### Tag and Push Image to GHCRIO Registry
+
+```sh
+docker tag <image-name>:<tag> ghcr.io/<username>/<image-name>:<tag>
+docker push ghcr.io/<username>/<image-name>:<tag>
+```
+
+#### Reference the ghcr.io registry in the kubernetes deployment manifest
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: busy-knuth-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: busy-knuth
+  template:
+    metadata:
+      labels:
+        app: busy-knuth
+    spec:
+      containers:
+        - name: busy-knuth-container
+          image: ghcr.io/bronifty/busy-knuth:latest
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh"]
+          args:
+            - "-c"
+            - |
+              echo Container started
+              trap "exit 0" 15
+
+              exec "$@"
+              while sleep 1 & wait $!; do :; done
+            - "-"
+          env:
+            - name: PATH
+              value: "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            - name: DEBIAN_FRONTEND
+              value: "noninteractive"
+          volumeMounts:
+            - name: c-debugging
+              mountPath: /workspaces/c-debugging
+            - name: vscode
+              mountPath: /vscode
+      volumes:
+        - name: c-debugging
+          hostPath:
+            path: /Users/bronifty/codes/temp/c-debugging
+            type: Directory
+        - name: vscode
+          persistentVolumeClaim:
+            claimName: vscode-pvc
+```
+
+#### Run GHCRIO Image Locally to Validate
+
+```sh
+docker run -it ghcr.io/<username>/<image-name>:<tag>
+```
+
+#### Apply Deployment Update
+
+```sh
+kubectl apply -f deployment.yaml
+kubectl get pods
+kubectl describe pod busy-knuth-deployment-xxxxxxxxxx-yyyyy
+kubectl exec -it busy-knuth-deployment-xxxxxxxxxx-yyyyy -- /bin/bash
+kubectl logs busy-knuth-deployment-xxxxxxxxxx-yyyyy
+```
+
+#### Verify and Check Logs
+
+```sh
+kubectl get pods
+kubectl describe pod busy-knuth-deployment-xxxxxxxxxx-yyyyy
+kubectl exec -it busy-knuth-deployment-xxxxxxxxxx-yyyyy -- /bin/bash
+kubectl logs busy-knuth-deployment-xxxxxxxxxx-yyyyy
 ```
