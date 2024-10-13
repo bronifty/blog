@@ -1,0 +1,30 @@
+```json
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "lldb",
+      "type": "lldb",
+      "request": "launch",
+      "program": "${fileDirname}/${fileBasenameNoExtension}",
+      "cwd": "${workspaceFolder}",
+      "preLaunchTask": "clang++"
+    },
+    {
+      "name": "python",
+      "type": "python",
+      "request": "launch",
+      "program": "${file}",
+      "console": "integratedTerminal",
+      "cwd": "${fileDirname}"
+    },
+    {
+      "name": "go",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "program": "${file}"
+    }
+  ]
+}
+```
