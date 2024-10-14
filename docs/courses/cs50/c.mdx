@@ -1,6 +1,7 @@
 # C
 
 ## Linked List
+
 ```c
 #include <stdio.h>
 #include <stdlib.h>
@@ -24,31 +25,162 @@ int main(int argc, char *argv[])
         {
             return 1;
         }
-        // n->number means 'dereference the pointer, n, and access its property, number'
-        // another way of saying it is go to the property of the pointer's memory address
-        // another way of thinking about it is accessing the property of a referenced object in javascript, but it's a little different because of the pointer abstraction and separate memory address
-        // n->number = number; will assign the value input on the command line to the property of the pointer's memory address
+        // n->number means 'dereference the pointer, n,
+        // and access its property, number'
+        // another way of saying it is go to the property
+        // of the pointer's memory address
+        // another way of thinking about it is
+        // accessing the property of a referenced object in javascript,
+        // but it's a little different because of the pointer abstraction
+        // and separate memory address
+
+        // n->number = number; will assign the value input
+        // on the command line to the property of
+        // the pointer's memory address
         n->number = number;
-        // n->next = list; will assign the node data structure's next pointer (there is only next because it is a singly linked list) to the current list, which can be thought of as HEAD like in git, or the current commit, before this update is made
-        // a singly-linked list adds each node by preprending it (to the left); that means the "list" (or HEAD) is always going to be penultimate or second to the most current node if we consider the one being currently added and linking back
-        // the node we add links back to list (HEAD), this way it keeps track of its direct ancestor; then we change what list points to, which will be the temporary value in the loop, n, so now HEAD (list) points to the most recently added node which linked to the previously most recently added node
+        // n->next = list; will assign the node data structure's
+        // next pointer (there is only next because it is a singly
+        // linked list) to the current list, which can be thought
+        // of as HEAD like in git, or the current commit,
+        // before this update is made
+        // a singly-linked list adds each node by preprending it
+        // (to the left); that means the "list" (or HEAD) is always
+        // going to be penultimate or second to the most current node
+        // if we consider the one being currently added and linking back
+        // the node we add links back to list (HEAD), this way it keeps
+        // track of its direct ancestor; then we change what list points to,
+        // which will be the temporary value in the loop, n, so now HEAD
+        // (list) points to the most recently added node which linked to
+        // the previously most recently added node
         // now n is free to be reallocated for the next node to be added
         n->next = list;
-        // n->next = list; list = n; that is a pattern that you need to memorize for it to make sense, just like your times tables
+        // n->next = list; list = n; that is a pattern that
+        // you need to memorize for it to make sense, just like your times tables
         list = n;
     }
     // print the list
-    // node *ptr = list; this creates a pointer variable with its own memory address, to point to the list, which will initially be pointing at the first memory address in the contiguous block of memory that is the list
-    // while (ptr != NULL) ... ptr = ptr->next; this loops over the list, and after printing the int value at ptr->number, it reassigns ptr to the next node in the linked list (which is referenced by the pointer in the node data structure defined as *next and which is accessed with ptr->next)
-    // notably, when ptr->next is referenced, it initially refers to the first item in the list (like the first index in an array); when ptr is reassigned, it moves to the next node (to the right) in the linked list 
+    // node *ptr = list; this creates a pointer variable with its own memory address, to point to the list, which will initially be pointing at the first memory address in the list
+    // while (ptr != NULL) ... ptr = ptr->next; this loops over the list,
+    // and after printing the int value at ptr->number, it reassigns ptr to
+    // the next node in the linked list (which is referenced by the pointer
+    // in the node data structure defined as *next and which is accessed with
+    // ptr->next)
+    // notably, when ptr->next is referenced, it initially refers to the
+    // first item in the list (like the first index in an array); when ptr is
+    // reassigned, it moves to the next node (to the right) in the linked list
     node *ptr = list;
     while (ptr != NULL)
     {
         printf("in the while loop\n");
         printf("%i\n", ptr->number);
         ptr = ptr->next;
-    } 
+    }
 }
+```
+
+## Ordered Linked List
+
+```c
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct node
+{
+    int number;
+    struct node *next;
+}
+node;
+
+// Function to print the linked list in order
+void print_list(node *list) {
+    node *ptr = list;
+    while (ptr != NULL) {
+        printf("%i\n", ptr->number);
+        ptr = ptr->next;
+    }
+}
+
+int main(int argc, char *argv[])
+{
+    node *list = NULL;
+
+    for (int i = 1; i < argc; i++)
+    {
+        int number = atoi(argv[i]);
+        node *n = (node *)malloc(sizeof(node));
+
+        if (n == NULL)
+        {
+            return 1;
+        }
+
+        n->number = number;
+        n->next = NULL;
+
+        // if list is empty
+        if (list == NULL){
+            list = n;
+        }
+
+        // if number belongs earlier in list than current node,
+        // prepend to beginning of list and set the list to the new node
+        // this sets "list" to always be the smallest value
+        else if (n->number < list->number){
+            n->next = list;
+            list = n;
+        }
+
+        // if n->number is greater than the currently smallest value (list->number)
+        else {
+            // iterate over nodes in list
+            for (node *ptr = list; ptr != NULL; ptr = ptr->next){
+                // first check to see if we haven't found any node's value in the list
+                // greater than n->number
+                // if that is the case (n->number is larger than any in list)
+                // append n node by setting ptr->next to n
+                if (ptr->next == NULL){
+                    ptr->next = n;
+                    break;
+                }
+                // at this point, n->number is >= list->number
+                // if n->number is >= list->number
+                // (and subsequently, ptr->number, as we iterate over the list)
+                // and n->number is < ptr->next->number ...
+                // (if n->number is between the current ptr number and its next pointer's number)
+                // insert node in ptr
+                if (n->number < ptr->next->number){
+                    // set n's next pointer to ptr's next node
+                    // in order to put n between ptr and ptr->next
+                    n->next = ptr->next;
+                    // shift ptr's next to point to n
+                    ptr->next = n;
+                    break;
+                }
+            }
+        }
+
+
+    }
+
+
+
+    // Print the sorted list
+    print_list(list);
+
+    // Optional: Free the allocated memory
+    node *current = list;
+    while (current != NULL) {
+        node *temp = current;
+        current = current->next;
+        free(temp);
+    }
+
+    return 0;
+}
+
+// /usr/bin/clang++ -std=c++17 -g ./ordered-linked-list.c -o ./ordered-linked-list
+// ./ordered-linked-list 1 2 3 77 4 99 5
+// should print 1 2 3 4 5 77 99
 ```
 
 ## Binary Search Tree
@@ -127,5 +259,193 @@ int main(void) {
   3     7
  / \   / \
 1   4 6   8
+
+```
+
+## Balanced Search Tree With Dynamic Insertion
+
+```c
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
+#include <errno.h>
+#include <limits.h>
+
+// ========================
+// Node Definition
+// ========================
+
+typedef struct node {
+    int number;
+    struct node *left;
+    struct node *right;
+} node;
+
+// ========================
+// Insert Function
+// ========================
+
+/**
+ * Inserts a number into the BST.
+ * If the number already exists, it is discarded.
+ *
+ * @param tree The root of the BST.
+ * @param number The number to insert.
+ * @return The root of the BST after insertion.
+ */
+
+// If the current tree node is NULL,
+// a new node is created and returned.
+// If the number is less than the current node's number,
+// recurse into the left subtree.
+// If the number is greater,
+// recurse into the right subtree.
+// If the number is equal to an existing node's number,
+// it's considered a duplicate and is not inserted.
+
+node* insert_bst(node *tree, int number) {
+    if (tree == NULL) {
+        node *new_node = (node *)malloc(sizeof(node));
+        if (new_node == NULL) {
+            perror("Failed to allocate memory for new BST node");
+            exit(EXIT_FAILURE);
+        }
+        new_node->number = number;
+        new_node->left = new_node->right = NULL;
+        return new_node;
+    }
+
+    if (number < tree->number) {
+        tree->left = insert_bst(tree->left, number);
+    } else if (number > tree->number) {
+        tree->right = insert_bst(tree->right, number);
+    }
+    return tree;
+}
+
+// ========================
+// Search Function
+// ========================
+
+/**
+ * Searches for a number in the BST.
+ *
+ * @param tree The root of the BST.
+ * @param number The number to search for.
+ * @return true if found, false otherwise.
+ */
+bool search_bst(const node *tree, int number){
+    if (tree == NULL) return false;
+    if (tree->number == number) return true;
+    if (number < tree->number) return search_bst(tree->left, number);
+    else return search_bst(tree->right, number);
+}
+
+// ========================
+// In-order Traversal
+// ========================
+
+/**
+ * Performs in-order traversal of the BST and prints the numbers.
+ *
+ * @param root The root of the BST.
+ */
+
+ // Traverses the BST in in-order
+ // (left, root, right) to print
+ // the numbers in ascending order.
+ //   In-order traversal of the BST:
+ //   1 2 3 4 5
+void inorder_traversal(const node *root) {
+    if (root == NULL) return;
+    inorder_traversal(root->left);
+    printf("%d ", root->number);
+    inorder_traversal(root->right);
+}
+
+// ========================
+// Free BST Memory
+// ========================
+
+/**
+ * Frees all nodes in the BST.
+ *
+ * @param root The root of the BST.
+ */
+void free_bst(node *root) {
+    if (root == NULL) return;
+    free_bst(root->left);
+    free_bst(root->right);
+    free(root);
+}
+
+// ========================
+// Main Function
+// ========================
+
+int main(int argc, char *argv[]) {
+    if (argc < 2) {
+        printf("Usage: %s <numbers...>\n", argv[0]);
+        printf("Example: %s 5 3 1 4 2\n", argv[0]);
+        return EXIT_FAILURE;
+    }
+
+    node *bst_root = NULL; // Root of the BST
+
+    // Parse command-line arguments and insert into BST
+    for (int i = 1; i < argc; i++) {
+        char *endptr;
+        errno = 0; // To distinguish success/failure after the call
+        long val = strtol(argv[i], &endptr, 10);
+
+        // Check for conversion errors
+        if (errno != 0 || *endptr != '\0') {
+            fprintf(stderr, "Invalid number '%s'. Skipping.\n", argv[i]);
+            continue;
+        }
+
+        // Check for integer overflow
+        if (val < INT_MIN || val > INT_MAX) {
+            fprintf(stderr, "Number '%s' out of range. Skipping.\n", argv[i]);
+            continue;
+        }
+
+        int number = (int)val;
+        bst_root = insert_bst(bst_root, number);
+    }
+
+    // Print the BST in-order
+    printf("In-order traversal of the BST:\n");
+    inorder_traversal(bst_root);
+    printf("\n");
+
+    // Define the constant integer value to search for
+    const int SEARCH_VALUE = 4;
+
+    // Perform the search
+    bool found = search_bst(bst_root, SEARCH_VALUE);
+    printf("Number %d is %s in the tree.\n", SEARCH_VALUE, found ? "found" : "not found");
+
+    // Free allocated memory
+    free_bst(bst_root);
+
+    return EXIT_SUCCESS;
+}
+
+/**
+ *  /usr/bin/clang++ -std=c++17 -g ./balanced-tree.c -o ./balanced-tree
+ *  ./balanced-tree 54 1 22 97 6 88 44 22 30 1 3 5 7 9 6 2
+ *  In-order traversal of the BST:
+ *  1 1 2 3 5 6 6 7 9 22 30 44 54 88 97
+ *  Number 4 is not found in the tree.
+ *  ./balanced-tree 54 1 22 9 7 6 88 44 22 30 1 3 5 7 9 6 2 4
+ *  In-order traversal of the BST:
+ *  1 2 3 4 5 6 7 9 22 30 44 54 88
+ *  Number 4 is found in the tree.
+ **/
+
+
 
 ```
