@@ -1,0 +1,21 @@
+- referenced by lldb as its build task
+
+```json
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "clang++",
+      "type": "shell",
+      "command": "/usr/bin/clang++",
+      "args": [
+        "-std=c++17",
+        "-g",
+        "${file}",
+        "-o",
+        "${fileDirname}/${fileBasenameNoExtension}"
+      ]
+    }
+  ]
+}
+```

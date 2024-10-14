@@ -1,1 +1,1 @@
-["container", "lldb", "launch.json"]
+["container", "lldb", "launch.json", "tasks.json"]
