@@ -6,5 +6,6 @@
   "react-router",
   "sqlite-wasm",
   "llvm",
-  "collab"
+  "collab",
+  "ryan-blue-tabular-databricks"
 ]
